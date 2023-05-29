@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Ticketsystem | {% block title %}{% endblock %}</title>
+        <link href="{% static 'layout.css' %}" rel="stylesheet">
+        <script type="module" src="{% static 'layout.js' %}"></script>
+        {% block script %}
+
+        {% endblock %}
+    </head>
+    <body>
+        <div class="layout_menu_div">
+            <div id="layout_menu_hamburger_wrapper">
+                <div id="layout_menu_hamburger_before" class=" layout_menu_hamburger_style"></div>
+                <div id="layout_menu_hamburger_middle" class=" layout_menu_hamburger_style"></div>
+                <div id="layout_menu_hamburger_after" class=" layout_menu_hamburger_style"></div>
+            </div>
+
+
+            <ul id="layout_menu_ul">
+                    <li class="layout_menu_li" data-url="tickets">Tickets</li>
+                {% if user.is_authenticated %}
+                    <li class="layout_menu_li" data-url="mytickets">My Tickets</li>
+                    <li class="layout_menu_li" data-url="mydashboard">My Dashboard</li>
+                    <li class="layout_menu_li" data-url="logout">Logout</li>
+                {% else %}
+                    <li class="layout_menu_li" data-url="login">Login</li>
+                    <li class="layout_menu_li" data-url="register">Register</li>
+                {% endif %}
+
+            </ul>
+        </div>
+        <div id="content_wrapper">
+            {% block body %}
+            {% endblock %}
+        </div>
+
+    </body>
+</html>

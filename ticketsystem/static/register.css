@@ -1,0 +1,32 @@
+h2{
+    font-size: 2rem;
+}
+#register_wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+
+}
+
+#register_form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+#register_submit_btn{
+    place-self: center;
+    font-size: 1.3rem;
+}
+
+.form-control{
+    font-size: 1.3rem;
+}
+#register_login_link{
+    color: #dbba30;
+}
+#register_submit_btn{
+    cursor: pointer;
+}

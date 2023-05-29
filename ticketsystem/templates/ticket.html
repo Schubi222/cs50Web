@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block script %}
+    <link rel="stylesheet" href="{% static 'ticket.css' %}">
+{% endblock %}
+
+{% block body %}
+    <div class="ticket_wrapper">
+        <div class="ticket_head">
+            <div class="ticket_author">Created by: <a href="#" class="ticket_author_link">User</a></div>
+            <div class="ticket_assigned_to">Assigned to: <a href="#" class="ticket_assigned_to">Worker</a></div>
+            <div class="ticket_age">Age: 15 Days</div>
+            <div class="ticket_status">Status: TODO: Add status selection based on permission</div>
+        </div>
+        <div class="ticket_body">My PC does not work!</div>
+        <div class="ticket_notes">TODO: Img upload</div>
+    </div>
+{% endblock %}

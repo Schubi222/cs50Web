@@ -1,0 +1,27 @@
+.all_tickets_ticket_wrapper{
+    border: 1px solid lightgray;
+    transition: .3s ease-in-out;
+    height: 100px;
+    width: 400px;
+    cursor: pointer;
+}
+.all_tickets_ticket_wrapper:hover{
+    background: #4c4c4c;
+}
+.all_tickets_ticket_head{
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid lightgray;
+    padding: 5px;
+    justify-content: space-between;
+
+}
+.all_tickets_ticket_body{
+    padding: 5px;
+}
+.all_tickets_ticket_author_link{
+    color: unset;
+    text-decoration: none;
+    cursor: pointer;
+}
+

@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block script %}
+    <link href="{% static 'ticket.css' %}" rel="stylesheet">
+    <script src="{% static 'allTickets.js' %}"></script>
+{% endblock %}
+
+{% block title %}Home{% endblock %}
+
+{% block body%}
+    <h1 class="home_heading">All Tickets</h1>
+    <div id="all_tickets">
+
+    </div>
+{% endblock %}
