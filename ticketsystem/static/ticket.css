@@ -1,3 +1,8 @@
+#all_tickets{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 .all_tickets_ticket_wrapper{
     border: 1px solid lightgray;
     transition: .3s ease-in-out;
@@ -24,4 +29,31 @@
     text-decoration: none;
     cursor: pointer;
 }
+#newTicket{
+    border: 1px solid lightgray;
+    width: 420px;
+    padding: 5px;
+}
+#newTicket_Form{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 
+}
+#newTicket_Form p{
+    margin: 0 0 -5px 0 ;
+
+}
+#newTicket_Form_Textarea{
+    width: 100%;
+    height: 150px;
+    box-sizing: border-box;
+}
+#newTicket_Submit{
+    width: 150px;
+    place-self: center;
+}
+
+.newTicket_input{
+    margin: 5px 0;
+}

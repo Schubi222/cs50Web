@@ -1,8 +1,16 @@
+import json
+
 from django.db import IntegrityError
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
+
+from datetime import datetime, timezone
+import datetime
+
+#TODO: For testing only
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Ticket
 
@@ -24,13 +32,39 @@ def profile(request, username):
 
 
 def ticket(request, id):
-    pass
+    return render(request, "ticket.html")
 
 
 def get_all_tickets(request):
     tickets = Ticket.objects.all()
-    print(tickets)
-    return JsonResponse({'tickets': [ticket.serialize() for ticket in tickets]}, safe=False)
+    now = datetime.datetime.now(timezone.utc)
+    ages = []
+    for elem in tickets:
+        delta = now - elem.timestamp
+        ages.append(delta.days if delta.days else 0)
+    return JsonResponse({'tickets': [ticket.serialize() for ticket in tickets], 'age': ages}, safe=False)
+
+
+#TODO: Nicht SPA redirect ersetzen durch js verhalten
+@csrf_exempt
+def new_ticket(request):
+    if request.method != 'POST':
+        return HttpResponseRedirect(reverse('index'))
+
+    user = request.user
+    if user == user.is_anonymous:
+        #TODO: Notification
+        return HttpResponseRedirect(reverse('index'))
+
+    data = json.loads(request.body)
+
+    newticket = Ticket()
+    newticket.owner = user
+    newticket.content = data.get('content')
+    newticket.status = 'New'
+    newticket.save()
+
+    return JsonResponse({"message": "Ticket created successfully."}, status=201)
 
 
 # Login/Logout/Register copied from Assignment 4

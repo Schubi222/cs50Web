@@ -8,6 +8,16 @@
 {% block title %}Home{% endblock %}
 
 {% block body%}
+    <div id="newTicket">
+        <form id="newTicket_Form" action="javascript:void(0);">
+            {% csrf_token %}
+            <label for="newTicket_Form_Textarea">What is your problem?</label>
+            <textarea id="newTicket_Form_Textarea" form="newTicket_Form" class="newTicket_input" name="newTicket_Problem_Description"></textarea>
+            <p>Any images you want to provide:</p>
+            <input class="newTicket_input" name="newTicket_Image" type="file">
+            <input class="newTicket_input" id="newTicket_Submit" type="submit" value="Submit">
+        </form>
+    </div>
     <h1 class="home_heading">All Tickets</h1>
     <div id="all_tickets">
 

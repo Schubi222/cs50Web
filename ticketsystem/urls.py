@@ -11,5 +11,6 @@ urlpatterns = [
     path("mydashboard", views.my_dashboard, name="mydashboard"),
     path("profile/<str:username>", views.profile, name="profile"),
     path("ticket/<int:id>", views.ticket, name="ticket"),
-    path("getalltickets", views.get_all_tickets, name="getalltickets")
+    path("getalltickets", views.get_all_tickets, name="getalltickets"),
+    path("newticket", views.new_ticket, name="newticket"),
 ]
