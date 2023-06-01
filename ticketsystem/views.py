@@ -32,6 +32,12 @@ def profile(request, username):
 
 
 def ticket(request, id):
+    ticket_to_display = Ticket.objects.all().get(id=id)
+    if not ticket_to_display:
+        return render(request, "ticket.html",
+                      {'error': 'This ticket does not exist!',
+                       'ticket': ''})
+
     return render(request, "ticket.html")
 
 

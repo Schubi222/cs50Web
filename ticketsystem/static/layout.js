@@ -32,7 +32,8 @@ function makeLayoutLinksClickable()
     const LIs = document.getElementsByClassName('layout_menu_li')
 
     Array.from(LIs).forEach(li => {
-        li.addEventListener('click', () =>{window.location.href=li.dataset.url})
+        const url = window.location.origin+'/'+li.dataset.url
+        li.addEventListener('click', () =>{window.location.replace(url)})
 
     })
 }
