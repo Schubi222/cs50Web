@@ -3,7 +3,19 @@ body{
     background: #2b2b2b;
 }
 html{color: lightgray}
-
+#message_div{
+    width: 400px;
+    height: 200px;
+    background: lightgray;
+    border: 1px solid darkgrey;
+    color: black;
+    position: absolute;
+    top:55px;
+    place-self: center;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+}
 .layout_menu_div{
     background-color: black;
     padding: 10px;

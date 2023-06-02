@@ -33,6 +33,9 @@
 
             </ul>
         </div>
+        {% if message %}
+        <div id="message_div">{{ message }}</div>
+        {% endif %}
         <div id="content_wrapper">
             {% block body %}
             {% endblock %}

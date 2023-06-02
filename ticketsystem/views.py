@@ -35,10 +35,10 @@ def ticket(request, id):
     ticket_to_display = Ticket.objects.all().get(id=id)
     if not ticket_to_display:
         return render(request, "ticket.html",
-                      {'error': 'This ticket does not exist!',
+                      {'message': 'This ticket does not exist!',
                        'ticket': ''})
 
-    return render(request, "ticket.html")
+    return render(request, "ticket.html", {'message': "Test"})
 
 
 def get_all_tickets(request):
