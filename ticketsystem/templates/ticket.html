@@ -3,17 +3,43 @@
 
 {% block script %}
     <link rel="stylesheet" href="{% static 'ticket.css' %}">
+    <link rel="stylesheet" href="{% static 'form.css' %}">
+    <script type="module" src={% static 'singleTicket.js' %}></script>
 {% endblock %}
 
 {% block body %}
-    <div class="ticket_wrapper">
-        <div class="ticket_head">
-            <div class="ticket_author">Created by: <a href="#" class="ticket_author_link">User</a></div>
-            <div class="ticket_assigned_to">Assigned to: <a href="#" class="ticket_assigned_to">Worker</a></div>
-            <div class="ticket_age">Age: 15 Days</div>
-            <div class="ticket_status">Status: TODO: Add status selection based on permission</div>
+    {% if ticket %}
+        <div class="ticket_wrapper">
+            <div class="ticket_head">
+                <div class="ticket_author">Created by: <a href="#" class="ticket_author_link">{{ ticket.owner }}</a></div>
+                <div class="ticket_assigned_to">Assigned to:
+                    {% if ticket.assigned_to %}
+                    <a href="#" class="ticket_assigned_to">{{ ticket.assigned_to }}</a>
+                    {% else %}
+                    Not yet assigned
+                    {% endif %}
+                </div>
+                <div class="ticket_age">Age: {{ age }} Days</div>
+                <div class="ticket_status">Status: TODO: Add status selection based on permission current res:{{ ticket.status }}</div>
+            </div>
+            <div class="ticket_body">{{ ticket.content }}</div>
+            <div class="ticket_notes">TODO: Img upload current res: {{ ticket.image }}</div>
         </div>
-        <div class="ticket_body">My PC does not work!</div>
-        <div class="ticket_notes">TODO: Img upload</div>
-    </div>
+
+        <div id="ticket_new_comment" class="form_wrapper">
+            <form id="ticket_new_comment_form" action="javascript:void(0);" class="form">
+                {% csrf_token %}
+                <label for="ticket_new_comment_form_Textarea">Comment</label>
+                <textarea id="ticket_new_comment_form_Textarea" form="ticket_new_comment_form"
+                          class="form_input form_textarea" name="newTicket_Problem_Description"
+                          placeholder="What is your problem?"></textarea>
+                <p>Any images you want to provide:</p>
+                <input class="form_input" name="newTicket_Image" type="file">
+                <input class="form_input form_submit" id="newTicket_Submit" type="submit" value="Comment">
+            </form>
+        </div>
+
+        <div id="ticket_log"></div>
+
+    {% endif %}
 {% endblock %}

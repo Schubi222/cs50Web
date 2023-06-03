@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
     document.getElementById('layout_menu_hamburger_wrapper').addEventListener('click', () =>{layout()})
     makeLayoutLinksClickable()
+    const message = document.getElementById('message_div')
+    if (message) {messageFade(message)}
 })
 let open = false
 function layout(){
@@ -26,7 +28,9 @@ function layout(){
         Array.from(menu_lis).forEach(li => li.classList.add('is_open'))
     }
 }
+function messageFade(){
 
+}
 function makeLayoutLinksClickable()
 {
     const LIs = document.getElementsByClassName('layout_menu_li')

@@ -9,10 +9,20 @@ from django.urls import reverse
 from datetime import datetime, timezone
 import datetime
 
+from django.contrib.auth.decorators import login_required
+
 #TODO: For testing only
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Ticket
+
+
+# Helper Functions
+# Returns number of days
+def calc_age(date):
+    now = datetime.datetime.now(timezone.utc)
+    delta = now - date
+    return delta.days if delta.days else 0
 
 
 def index(request):
@@ -32,33 +42,46 @@ def profile(request, username):
 
 
 def ticket(request, id):
+
+    user = request.user
+    if user.is_anonymous:
+        # TODO: Notification
+        return HttpResponseRedirect(reverse('index'))
+
     ticket_to_display = Ticket.objects.all().get(id=id)
     if not ticket_to_display:
-        return render(request, "ticket.html",
-                      {'message': 'This ticket does not exist!',
-                       'ticket': ''})
-
-    return render(request, "ticket.html", {'message': "Test"})
+        return render(request, "ticket.html", {
+            'message': 'This ticket does not exist!',
+            'ticket': '',
+        })
+    age = calc_age(ticket_to_display.timestamp)
+    return render(request, "ticket.html", {
+        'message': '',
+        'ticket': ticket_to_display,
+        'age': age,
+    })
 
 
 def get_all_tickets(request):
     tickets = Ticket.objects.all()
-    now = datetime.datetime.now(timezone.utc)
+
     ages = []
     for elem in tickets:
-        delta = now - elem.timestamp
-        ages.append(delta.days if delta.days else 0)
-    return JsonResponse({'tickets': [ticket.serialize() for ticket in tickets], 'age': ages}, safe=False)
+        ages.append(calc_age(elem.timestamp))
+    tickets = tickets.order_by('-timestamp').all()
+    return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets], 'age': ages}, safe=False)
 
 
-#TODO: Nicht SPA redirect ersetzen durch js verhalten
+# TODO: Nicht SPA redirect ersetzen durch js verhalten
+# TODO: Remove age + ticket if not needed
 @csrf_exempt
+@login_required
 def new_ticket(request):
     if request.method != 'POST':
         return HttpResponseRedirect(reverse('index'))
 
     user = request.user
-    if user == user.is_anonymous:
+    if user.is_anonymous:
         #TODO: Notification
         return HttpResponseRedirect(reverse('index'))
 
@@ -69,8 +92,13 @@ def new_ticket(request):
     newticket.content = data.get('content')
     newticket.status = 'New'
     newticket.save()
+    age = calc_age(newticket.timestamp)
 
-    return JsonResponse({"message": "Ticket created successfully."}, status=201)
+    return JsonResponse({
+        "message": "Ticket created successfully.",
+        'ticket': newticket.serialize(),
+        'age': age,
+    },  safe=False)
 
 
 # Login/Logout/Register copied from Assignment 4

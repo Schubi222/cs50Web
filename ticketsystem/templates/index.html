@@ -1,25 +1,29 @@
 {% extends "layout.html" %}
 {% load static %}
 {% block script %}
-    <link href="{% static 'ticket.css' %}" rel="stylesheet">
-    <script src="{% static 'allTickets.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'ticket.css' %}">
+    <link rel="stylesheet" href="{% static 'noSelect.css' %}">
+    <link rel="stylesheet" href="{% static 'form.css' %}">
+    <script type="module" src="{% static 'allTickets.js' %}"></script>
 {% endblock %}
 
 {% block title %}Home{% endblock %}
 
-{% block body%}
-    <div id="newTicket">
-        <form id="newTicket_Form" action="javascript:void(0);">
-            {% csrf_token %}
-            <label for="newTicket_Form_Textarea">What is your problem?</label>
-            <textarea id="newTicket_Form_Textarea" form="newTicket_Form" class="newTicket_input" name="newTicket_Problem_Description"></textarea>
-            <p>Any images you want to provide:</p>
-            <input class="newTicket_input" name="newTicket_Image" type="file">
-            <input class="newTicket_input" id="newTicket_Submit" type="submit" value="Submit">
-        </form>
-    </div>
-    <h1 class="home_heading">All Tickets</h1>
-    <div id="all_tickets">
-
+{% block body %}
+    <div id="all_tickets_wrapper">
+        <div id="newTicket" class="form_wrapper">
+            <form id="newTicket_Form" action="javascript:void(0);" class="form">
+                {% csrf_token %}
+                <label for="newTicket_Form_Textarea">Create a new ticket</label>
+                <textarea id="newTicket_Form_Textarea" form="newTicket_Form" class="form_input form_textarea"
+                          name="newTicket_Problem_Description" placeholder="What is your problem?"></textarea>
+                <p>Any images you want to provide:</p>
+                <input class="form_input" name="newTicket_Image" type="file">
+                <input class="form_input form_submit" id="newTicket_Submit" type="submit" value="Create Ticket">
+            </form>
+        </div>
+        <h1 class="home_heading">All Tickets</h1>
+        <div id="all_tickets">
+        </div>
     </div>
 {% endblock %}

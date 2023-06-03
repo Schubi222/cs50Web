@@ -1,3 +1,4 @@
+import {createHTML} from './util.js'
 document.addEventListener('DOMContentLoaded', () =>{
     loadAllPosts()
     document.getElementById('newTicket_Form').addEventListener('submit',() =>{createNewTicket()})
@@ -6,21 +7,21 @@ document.addEventListener('DOMContentLoaded', () =>{
 function loadAllPosts()
 {
     const all_tickets_div = document.getElementById('all_tickets')
+    all_tickets_div.innerHTML = ''
+
     fetch('getalltickets')
         .then(response => response.json())
         .then(tickets => {
-            console.log(tickets)
             if (tickets.tickets.length === 0){all_tickets_div.innerHTML = '<h3>There are currently no tickets! </h3>'; return}
             for (let i = 0; i < tickets.tickets.length; i++) {
                 createTicketHtml(tickets.tickets[i],tickets.age[i],all_tickets_div)
             }
         })
-
 }
 
 
 function createTicketHtml(ticket,age, parent){
-    const wrapper = createHTML(parent,'div',['all_tickets_ticket_wrapper'],'')
+    const wrapper = createHTML(parent,'div',['all_tickets_ticket_wrapper', 'noSelect'],'')
     wrapper.addEventListener('click', () =>{window.location.href=`ticket/${ticket.id}`})
 
     const head = createHTML(wrapper,'div',['all_tickets_ticket_head'],'')
@@ -46,26 +47,12 @@ function createNewTicket(){
             content: content_
         })
     })
+        //TODO: add message
         .then(response =>{response.json()
             .then(r =>{
-
+                loadAllPosts()
         })
     })
 }
 
 
-/***
- * Can be used to create any element
- * @param parent
- * @param type what type of HTML Element it should be for instance Div
- * @param classnames hast to be a list but can be an empty list
- * @param content can be empty
- * @returns {HTMLElement}
- */
-function createHTML(parent,type, classnames, content){
-    let elem = document.createElement(`${type}`)
-    classnames.forEach(name => elem.classList.add(name))
-    elem.innerHTML = content
-    parent.append(elem)
-    return elem
-}
