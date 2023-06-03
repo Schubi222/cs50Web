@@ -35,7 +35,9 @@ function createTicketHtml(ticket,age, parent){
 
 function createNewTicket(){
     const form = document.getElementById('newTicket_Form')
-    const content_ = document.getElementById('newTicket_Form_Textarea').value
+    const textarea = document.getElementById('newTicket_Form_Textarea')
+    const content_ = textarea.value
+    textarea.value = ''
     const csrf = form.elements['csrfmiddlewaretoken'].value
     const imgs = document.getElementById('newTicket_Image')
 
