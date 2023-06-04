@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block script %}
+    <script type="module" src="{% static 'myTicket.js' %}"></script>
+    {{ response.user | json_script:"active_user" }}
+{% endblock %}
+
+{% block body %}
+    <div id="my_tickets"></div>
+{% endblock %}

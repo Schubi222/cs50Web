@@ -42,12 +42,13 @@ def form_standard_check(request, to_be_created):
             })
     return None
 
+
 def index(request):
     return render(request, "index.html")
 
 
 def my_tickets(request):
-    pass
+    return render(request, "myticket.html")
 
 
 def my_dashboard(request):
