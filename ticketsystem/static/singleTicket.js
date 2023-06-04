@@ -11,19 +11,26 @@ function comment(){
     textarea.value = ''
     const csrf = form.elements['csrfmiddlewaretoken'].value
     const imgs = document.getElementById('newTicket_Image')
+    const ticket_id = form.elements['ticket_id'].value
 
     fetch('/newcomment',{
         method: 'POST',
         headers: {'X-CSRFToken':csrf},
         mode:'same-origin',
         body: JSON.stringify({
-            content: content_
+            content: content_,
+            ticket: ticket_id
         })
     })
         .then(response =>{response.json()
             .then(r =>{
-                if (!r.error)
+                console.log(r)
+                console.log(r.error)
+                if (!r.error) {
                     loadLog()
+                    console.log("test")
+                }
+
                 else{
                     displayMessage(r.message)
                 }
@@ -33,21 +40,28 @@ function comment(){
 
 function loadLog(){
     const ticket = JSON.parse(document.getElementById('ticket').textContent)
-    const log = ticket.log
     const parent = document.getElementById('ticket_log')
-    log.forEach(entry => {
-        switch (entry.type) {
-            case '':
-                console.log("singleTicket:loadLog: type empty")
-                break
-            case "Comment":
-                createCommentHTML(parent, entry)
-                break
-            case "Notification":
-                createNotificationHTML(parent, entry)
-                break
-        }
-    })
+    parent.innerHTML = ''
+
+    fetch(`/getallentries/${ticket.id}`)
+        .then(response => response.json())
+        .then(r =>{
+            r.entries.forEach(entry=>{
+                switch (entry.type) {
+                    case '':
+                        console.log("singleTicket:loadLog: type empty")
+                        break
+                    case "Comment":
+                        createCommentHTML(parent, entry)
+                        break
+                    case "Notification":
+                        createNotificationHTML(parent, entry)
+                        break
+                }
+            })
+
+        })
+
 
 }
 

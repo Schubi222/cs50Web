@@ -14,4 +14,5 @@ urlpatterns = [
     path("getalltickets", views.get_all_tickets, name="getalltickets"),
     path("newticket", views.new_ticket, name="newticket"),
     path("newcomment", views.new_comment, name="newcomment"),
+    path("getallentries/<int:ticket_id>", views.get_all_entries_for_ticket, name="getallentries"),
 ]

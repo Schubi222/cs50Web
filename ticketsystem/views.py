@@ -89,6 +89,14 @@ def get_all_tickets(request):
     return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets], 'age': ages}, safe=False)
 
 
+# TODO: Maybe error ahndling
+@login_required
+def get_all_entries_for_ticket(request, ticket_id):
+    logs = Ticket.objects.get(id=ticket_id).log_entries
+    logs = logs.order_by('-timestamp').all()
+    return JsonResponse({'entries': [entry.serialize() for entry in logs]}, safe=False)
+
+
 def new_comment(request):
 
     validate = form_standard_check(request, "comment")
@@ -96,11 +104,19 @@ def new_comment(request):
         return validate
 
     data = json.loads(request.body)
+    ticket_id = data.get('ticket')
+
+    if not Ticket.objects.filter(id=ticket_id).exists():
+        return JsonResponse({
+            "message": "Something went wrong! This ticket does not exist anymore!",
+            'error': True
+            })
 
     entry = LogEntry()
     entry.owner = request.user
     entry.content = data.get('content')
     entry.type = 'Comment'
+    entry.ticket = Ticket.objects.get(id=ticket_id)
     entry.save()
 
     return JsonResponse({
