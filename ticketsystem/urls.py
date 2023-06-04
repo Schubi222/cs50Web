@@ -13,4 +13,5 @@ urlpatterns = [
     path("ticket/<int:id>", views.ticket, name="ticket"),
     path("getalltickets", views.get_all_tickets, name="getalltickets"),
     path("newticket", views.new_ticket, name="newticket"),
+    path("newcomment", views.new_comment, name="newcomment"),
 ]

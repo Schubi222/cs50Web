@@ -14,3 +14,7 @@ export function createHTML(parent,type, classnames, content){
     parent.append(elem)
     return elem
 }
+
+export function displayMessage(content){
+
+}

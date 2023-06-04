@@ -1,4 +1,4 @@
-import {createHTML} from './util.js'
+import {createHTML, displayMessage} from './util.js'
 document.addEventListener('DOMContentLoaded', () =>{
     loadAllPosts()
     document.getElementById('newTicket_Form').addEventListener('submit',() =>{createNewTicket()})
@@ -30,6 +30,7 @@ function createTicketHtml(ticket,age, parent){
     author_link.href=`profile/${ticket.owner}`
     createHTML(head,'div',[ 'all_tickets_ticket_age'],`${age} Days`)
     const status = createHTML(head,'div',[ 'all_tickets_ticket_status'],ticket.status)
+
     const body = createHTML(wrapper,'div',[ 'all_tickets_ticket_body'],ticket.content)
 }
 
@@ -49,10 +50,13 @@ function createNewTicket(){
             content: content_
         })
     })
-        //TODO: add message
         .then(response =>{response.json()
             .then(r =>{
-                loadAllPosts()
+                if (!r.error)
+                    loadAllPosts()
+                else{
+                    displayMessage(r.message)
+                }
         })
     })
 }

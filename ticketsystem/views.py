@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 #TODO: For testing only
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import User, Ticket
+from .models import User, Ticket, LogEntry
 
 
 # Helper Functions
@@ -24,6 +24,23 @@ def calc_age(date):
     delta = now - date
     return delta.days if delta.days else 0
 
+
+# Everything but implying that something went wrong and the result should be returned
+def form_standard_check(request, to_be_created):
+    if request.method != 'POST':
+        return JsonResponse({
+            "message": f"Something went wrong while leaving a {to_be_created}!",
+            'error': True
+        })
+
+    user = request.user
+    if user.is_anonymous:
+        # TODO: Notification
+        return JsonResponse({
+            "message": "You have to be logged in to do that!",
+            'error': True
+            })
+    return None
 
 def index(request):
     return render(request, "index.html")
@@ -57,7 +74,7 @@ def ticket(request, id):
     age = calc_age(ticket_to_display.timestamp)
     return render(request, "ticket.html", {
         'message': '',
-        'ticket': ticket_to_display,
+        'ticket': ticket_to_display.serialize(),
         'age': age,
     })
 
@@ -72,23 +89,40 @@ def get_all_tickets(request):
     return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets], 'age': ages}, safe=False)
 
 
+def new_comment(request):
+
+    validate = form_standard_check(request, "comment")
+    if validate:
+        return validate
+
+    data = json.loads(request.body)
+
+    entry = LogEntry()
+    entry.owner = request.user
+    entry.content = data.get('content')
+    entry.type = 'Comment'
+    entry.save()
+
+    return JsonResponse({
+        "message": "Ticket created successfully.",
+        'ticket': entry.serialize(),
+        'error': False
+    }, safe=False)
+
+
 # TODO: Nicht SPA redirect ersetzen durch js verhalten
 # TODO: Remove age + ticket if not needed
 @csrf_exempt
 @login_required
 def new_ticket(request):
-    if request.method != 'POST':
-        return HttpResponseRedirect(reverse('index'))
-
-    user = request.user
-    if user.is_anonymous:
-        #TODO: Notification
-        return HttpResponseRedirect(reverse('index'))
+    validate = form_standard_check(request, "ticket")
+    if validate:
+        return validate
 
     data = json.loads(request.body)
 
     newticket = Ticket()
-    newticket.owner = user
+    newticket.owner = request.user
     newticket.content = data.get('content')
     newticket.status = 'New'
     newticket.save()

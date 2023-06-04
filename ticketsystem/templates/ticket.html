@@ -5,6 +5,8 @@
     <link rel="stylesheet" href="{% static 'ticket.css' %}">
     <link rel="stylesheet" href="{% static 'form.css' %}">
     <script type="module" src={% static 'singleTicket.js' %}></script>
+     {{ ticket|json_script:"ticket" }}
+
 {% endblock %}
 
 {% block body %}
