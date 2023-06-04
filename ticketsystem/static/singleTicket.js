@@ -1,7 +1,7 @@
 import {createHTML, displayMessage} from './util.js'
 document.addEventListener('DOMContentLoaded', ()=>{
     loadLog()
-    document.getElementById('ticket_new_comment_form').addEventListener('click', () =>{comment()})
+    document.getElementById('ticket_new_comment_form').addEventListener('submit', () =>{comment()})
 })
 
 function comment(){
