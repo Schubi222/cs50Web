@@ -1,7 +1,7 @@
-import {createHTML} from "./util.js";
+import {createHTML, listedHTMLContainer, displayMessage} from "./util.js";
 
 document.addEventListener('DOMContentLoaded', () =>{
-    // loadMyTickets()
+    loadMyTickets()
 })
 
 
@@ -13,28 +13,23 @@ function loadMyTickets(){
     fetch('/mytickets/get')
         .then(response=>response.json())
         .then(response =>{
-            response.tickets.forEach(ticket => createMyTicketHTML(div, ticket, active_user))
+            const user_tickets = response.user_tickets
+            const worker_tickets = response.worker_tickets
+
+            if (user_tickets.tickets)
+                createHTML(div, 'h2', ['my_tickets_heading'],'My tickets')
+            for (let i = 0; i < user_tickets.tickets?.length; i++) {
+                const age = user_tickets.ages[i]
+                const ticket = user_tickets.tickets[i]
+                listedHTMLContainer(div, ticket,'my_ticket', [age, active_user])
+            }
+
+            if (response.worker_tickets.tickets)
+                createHTML(div, 'h2', ['my_tickets_heading'],'My assigned tickets')
+            for (let i = 0; i < worker_tickets.tickets?.length; i++) {
+                const age = worker_tickets.ages[i]
+                const ticket = worker_tickets.tickets[i]
+                listedHTMLContainer(div, ticket,'my_ticket', [age, active_user])
+            }
         })
-}
-
-function createMyTicketHTML(parent, ticket, active_user){
-    console.log(active_user)
-    console.log(ticket.owner)
-    const div = createHTML(parent, 'div', ['log_entry_wrapper','log_entry_myticket_wrapper'],'')
-
-    const head = createHTML(div, 'div', ['log_entry_head','log_entry_myticket_head'],'')
-
-    const author = createHTML(head, 'div', ['log_entry_myticket_author'],'')
-    if (active_user !== ticket.owner)
-    {
-        const author_link = createHTML(author, 'a', ['log_entry_link','log_entry_myticket_author_link'],ticket.owner)
-        author_link.href=`profile/${ticket.owner}`
-    }
-    else {
-        author.innerHTML = ticket.owner
-    }
-
-    const creation_date = createHTML(head, 'div', ['log_entry_date'],ticket.timestamp)
-
-    const body = createHTML(div, 'div', ['log_entry_body','log_entry_comment_body'],ticket.content)
 }

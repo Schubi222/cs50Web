@@ -1,4 +1,4 @@
-import {createHTML, displayMessage} from './util.js'
+import {createHTML, listedHTMLContainer, displayMessage} from './util.js'
 document.addEventListener('DOMContentLoaded', ()=>{
     loadLog()
     document.getElementById('ticket_new_comment_form').addEventListener('submit', () =>{comment()})
@@ -52,10 +52,10 @@ function loadLog(){
                         console.log("singleTicket:loadLog: type empty")
                         break
                     case "Comment":
-                        createCommentHTML(parent, entry)
+                        listedHTMLContainer(parent, entry, 'comment')
                         break
                     case "Notification":
-                        createNotificationHTML(parent, entry)
+                        listedHTMLContainer(parent, entry, 'notification')
                         break
                 }
             })
@@ -65,26 +65,26 @@ function loadLog(){
 
 }
 
-function createCommentHTML(parent, entry){
-    const div = createHTML(parent, 'div', ['log_entry_wrapper','log_entry_comment_wrapper'],'')
+// function createCommentHTML(parent, entry){
+//     // const div = createHTML(parent, 'div', ['log_entry_wrapper','log_entry_comment_wrapper'],'')
+//     //
+//     // const head = createHTML(div, 'div', ['log_entry_head','log_entry_comment_head'],'')
+//
+//     // const author = createHTML(head, 'div', ['log_entry_comment_author'],'')
+//     // const author_link = createHTML(author, 'a', ['log_entry_link','log_entry_comment_author_link'],entry.owner)
+//     // author_link.href=`profile/${entry.owner}`
+//     // const creation_date = createHTML(head, 'div', ['log_entry_date'],entry.timestamp)
+//
+//     // const body = createHTML(div, 'div', ['log_entry_body','log_entry_comment_body'],entry.content)
+//
+// }
 
-    const head = createHTML(div, 'div', ['log_entry_head','log_entry_comment_head'],'')
-
-    const author = createHTML(head, 'div', ['log_entry_comment_author'],'')
-    const author_link = createHTML(author, 'a', ['log_entry_link','log_entry_comment_author_link'],entry.owner)
-    author_link.href=`profile/${entry.owner}`
-    const creation_date = createHTML(head, 'div', ['log_entry_date'],entry.timestamp)
-
-    const body = createHTML(div, 'div', ['log_entry_body','log_entry_comment_body'],entry.content)
-
-}
-
-function createNotificationHTML(parent, entry){
-    const div = createHTML(parent, 'div', ['log_entry_wrapper','log_entry_notification_wrapper'],'')
-
-    const head = createHTML(div, 'div', ['log_entry_head','log_entry_notification_head'],'')
-
-    const creation_date = createHTML(head, 'div', ['log_entry_date'],entry.timestamp)
-
-    const body = createHTML(div, 'div', ['log_entry_body','log_entry_notification_body'],entry.content)
-}
+// function createNotificationHTML(parent, entry){
+//     // const div = createHTML(parent, 'div', ['log_entry_wrapper','log_entry_notification_wrapper'],'')
+//     //
+//     // const head = createHTML(div, 'div', ['log_entry_head','log_entry_notification_head'],'')
+//     //
+//     // const creation_date = createHTML(head, 'div', ['log_entry_date'],entry.timestamp)
+//     //
+//     // const body = createHTML(div, 'div', ['log_entry_body','log_entry_notification_body'],entry.content)
+// }

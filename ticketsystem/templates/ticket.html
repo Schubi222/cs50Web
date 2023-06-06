@@ -4,6 +4,7 @@
 {% block script %}
     <link rel="stylesheet" href="{% static 'ticket.css' %}">
     <link rel="stylesheet" href="{% static 'form.css' %}">
+    <link rel="stylesheet" href="{% static 'container.css' %}">
     <script type="module" src={% static 'singleTicket.js' %}></script>
      {{ ticket|json_script:"ticket" }}
 
@@ -41,8 +42,8 @@
                 <input class="form_input form_submit" id="newTicket_Submit" type="submit" value="Comment">
             </form>
         </div>
-
-        <div id="ticket_log"></div>
+        <h1 class="home_heading">Log</h1>
+        <div id="ticket_log" class="container"></div>
 
     {% endif %}
 {% endblock %}

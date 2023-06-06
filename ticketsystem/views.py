@@ -43,12 +43,45 @@ def form_standard_check(request, to_be_created):
     return None
 
 
+# orders by -timestamp and calcs all ages
+# returns tickets and ages
+def prep_tickets(tickets):
+    if not tickets:
+        return None, None
+
+    tickets = tickets.order_by('-timestamp').all()
+    ages = []
+    for ticket_ in tickets:
+        ages.append(calc_age(ticket_.timestamp))
+
+    return tickets, ages
+
+
 def index(request):
     return render(request, "index.html")
 
 
 def my_tickets(request):
     return render(request, "myticket.html")
+
+
+@login_required
+def my_tickets_get(request):
+    user = request.user
+    user = User.objects.get(username=user)
+
+    worker_tickets = None
+    user_tickets = Ticket.objects.filter(owner=user).all()
+
+    if user.permission == User.Permission.Lead_Worker or user.permission == User.Permission.Worker:
+        worker_tickets = Ticket.objects.filter(assigned_to=user).all()
+
+    user_tickets, user_ages = prep_tickets(user_tickets)
+    worker_tickets, worker_ages = prep_tickets(worker_tickets)
+
+    return JsonResponse({'user_tickets': {'tickets': [elem.serialize() for elem in user_tickets] if user_tickets else None,'ages': user_ages},
+                        'worker_tickets': {'tickets': [elem.serialize() for elem in worker_tickets] if worker_tickets else None, 'ages': worker_ages}
+                         }, safe=False)
 
 
 def my_dashboard(request):
@@ -82,11 +115,8 @@ def ticket(request, id):
 
 def get_all_tickets(request):
     tickets = Ticket.objects.all()
+    tickets, ages = prep_tickets(tickets)
 
-    ages = []
-    for elem in tickets:
-        ages.append(calc_age(elem.timestamp))
-    tickets = tickets.order_by('-timestamp').all()
     return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets], 'age': ages}, safe=False)
 
 

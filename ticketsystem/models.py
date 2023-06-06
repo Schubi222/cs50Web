@@ -3,11 +3,18 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    id = models.AutoField(primary_key=True)
+
+    class Permission(models.TextChoices):
+        User = "User"
+        Worker = "Worker"
+        Lead_Worker = "Lead_Worker"
+
+    permission = models.CharField(choices=Permission.choices, max_length=16)
 
 
 class Ticket(models.Model):
-    id = models.AutoField(primary_key=True)
+
     owner = models.ForeignKey("User", on_delete=models.CASCADE, related_name="tickets")
     content = models.CharField(max_length=2048)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -31,7 +38,7 @@ class Ticket(models.Model):
             "content": self.content,
             "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p"),
             "image": self.image,
-            "assigned_to": self.assigned_to,
+            "assigned_to": self.assigned_to.username if self.assigned_to else None,
             "status": self.status,
             "log": [entry.id for entry in self.log_entries.all()],
             # "type": self.type.type if self.type else None,

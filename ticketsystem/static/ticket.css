@@ -1,41 +1,8 @@
-#all_tickets{
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+
 #all_tickets_wrapper{
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-.all_tickets_ticket_wrapper{
-    border: 1px solid lightgray;
-    transition: .3s ease-in-out;
-    height: 100px;
-    width: 600px;
-    cursor: pointer;
-    border-radius: 5px;
-    box-shadow:0 2px 5px 1px lightgray;
-    max-width: 100%;
-}
-.all_tickets_ticket_wrapper:hover{
-    background: #f3f3f3;
-}
-.all_tickets_ticket_head{
-    display: flex;
-    flex-direction: row;
-    border-bottom: 1px solid lightgray;
-    padding: 5px;
-    justify-content: space-between;
-
-}
-.all_tickets_ticket_body{
-    padding: 5px;
-}
-.all_tickets_ticket_author_link{
-    color: unset;
-    text-decoration: none;
-    cursor: pointer;
 }
 

@@ -2,10 +2,11 @@
 {% load static %}
 
 {% block script %}
+    <link rel="stylesheet" href="{% static 'container.css' %}">
     <script type="module" src="{% static 'myTicket.js' %}"></script>
     {{ response.user | json_script:"active_user" }}
 {% endblock %}
 
 {% block body %}
-    <div id="my_tickets"></div>
+    <div id="my_tickets" class="container"></div>
 {% endblock %}
