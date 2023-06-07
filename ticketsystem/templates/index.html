@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="{% static 'form.css' %}">
     <link rel="stylesheet" href="{% static 'container.css' %}">
     <script type="module" src="{% static 'allTickets.js' %}"></script>
+    {{ request.user.serialize|json_script:"active_user" }}
+
 {% endblock %}
 
 {% block title %}Home{% endblock %}

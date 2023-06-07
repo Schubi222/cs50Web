@@ -1,7 +1,15 @@
-import {createHTML, listedHTMLContainer, displayMessage} from './util.js'
+import {createHTML, listedHTMLContainer, displayMessage, claimTicket} from './util.js'
 document.addEventListener('DOMContentLoaded', ()=>{
     loadLog()
     document.getElementById('ticket_new_comment_form').addEventListener('submit', () =>{comment()})
+    document.getElementById('claim_btn')?.addEventListener('click', () => {
+        const ticket = JSON.parse(document.getElementById('ticket').textContent)
+        const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
+        const user = JSON.parse(document.getElementById('active_user').textContent)
+        claimTicket(ticket,document.getElementById('claim_btn'),csrf)
+        document.getElementById('assigned_to').innerHTML=
+            `Assigned to: <a href="profile/${user.username}" className="ticket_assigned_to">${user.username}</a>`
+    })
 })
 
 function comment(){
@@ -22,20 +30,17 @@ function comment(){
             ticket: ticket_id
         })
     })
-        .then(response =>{response.json()
-            .then(r =>{
-                console.log(r)
-                console.log(r.error)
-                if (!r.error) {
-                    loadLog()
-                    console.log("test")
-                }
+        .then(response =>response.json())
+        .then(r =>{
+            if (!r.error) {
+                loadLog()
+                console.log("test")
+            }
 
-                else{
-                    displayMessage(r.message)
-                }
+            else{
+                displayMessage(r.message)
+            }
         })
-    })
 }
 
 function loadLog(){
@@ -46,6 +51,10 @@ function loadLog(){
     fetch(`/getallentries/${ticket.id}`)
         .then(response => response.json())
         .then(r =>{
+            if (r.entries.length !== 0){
+                console.log(r.entries)
+                createHTML(parent,'h1',['home_heading'],'Log')
+            }
             r.entries.forEach(entry=>{
                 switch (entry.type) {
                     case '':

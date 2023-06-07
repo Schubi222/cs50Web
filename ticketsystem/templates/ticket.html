@@ -7,15 +7,21 @@
     <link rel="stylesheet" href="{% static 'container.css' %}">
     <script type="module" src={% static 'singleTicket.js' %}></script>
      {{ ticket|json_script:"ticket" }}
+    {{ request.user.serialize|json_script:"active_user" }}
 
 {% endblock %}
 
 {% block body %}
     {% if ticket %}
         <div class="ticket_wrapper">
+
+        {% if not ticket.assigned_to and user.permission == user.Permission.Lead_Worker or user.permission == user.Permission.Worker %}
+            <button id="claim_btn" class="single_ticket_ticket_claim ticket_claim">Claim</button>
+        {% endif %}
+
             <div class="ticket_head">
                 <div class="ticket_author">Created by: <a href="#" class="ticket_author_link">{{ ticket.owner }}</a></div>
-                <div class="ticket_assigned_to">Assigned to:
+                <div class="ticket_assigned_to" id="assigned_to">Assigned to:
                     {% if ticket.assigned_to %}
                     <a href="#" class="ticket_assigned_to">{{ ticket.assigned_to }}</a>
                     {% else %}
@@ -42,7 +48,7 @@
                 <input class="form_input form_submit" id="newTicket_Submit" type="submit" value="Comment">
             </form>
         </div>
-        <h1 class="home_heading">Log</h1>
+
         <div id="ticket_log" class="container"></div>
 
     {% endif %}

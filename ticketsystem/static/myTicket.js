@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () =>{
 function loadMyTickets(){
     const div = document.getElementById('my_tickets')
     const active_user = JSON.parse(document.getElementById('active_user').textContent)
+    const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
 
     fetch('/mytickets/get')
         .then(response=>response.json())
@@ -21,7 +22,7 @@ function loadMyTickets(){
             for (let i = 0; i < user_tickets.tickets?.length; i++) {
                 const age = user_tickets.ages[i]
                 const ticket = user_tickets.tickets[i]
-                listedHTMLContainer(div, ticket,'my_ticket', [age, active_user])
+                listedHTMLContainer(div, ticket,'my_ticket', [age, active_user, csrf])
             }
 
             if (response.worker_tickets.tickets)
@@ -29,7 +30,7 @@ function loadMyTickets(){
             for (let i = 0; i < worker_tickets.tickets?.length; i++) {
                 const age = worker_tickets.ages[i]
                 const ticket = worker_tickets.tickets[i]
-                listedHTMLContainer(div, ticket,'my_ticket', [age, active_user])
+                listedHTMLContainer(div, ticket,'my_ticket', [age, active_user, csrf])
             }
         })
 }

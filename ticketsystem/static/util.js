@@ -34,6 +34,12 @@ export function listedHTMLContainer(parent, model, type, additional=[]){
 
     const wrapper = createHTML(parent, 'div', ['container_wrapper', 'noSelect', `${type}_wrapper`],'')
 
+    if (type.includes('ticket') && additional[1]?.permission.includes('Worker') && !model.assigned_to){
+        const claim_btn = createHTML(wrapper, 'button', ['container_claim_btn', `${type}_claim_btn`],
+            'Claim Ticket')
+        claim_btn.addEventListener('click',() =>{claimTicket(model,claim_btn, additional[2])})
+    }
+
     const head = createHTML(wrapper, 'div', ['container_head',`${type}_head`],'')
 
     const author = createHTML(head, 'div', ['container_author',`${type}_author`],'')
@@ -58,4 +64,26 @@ export function listedHTMLContainer(parent, model, type, additional=[]){
 
 
     const body = createHTML(wrapper, 'div', ['container_body',`${type}_body`],model.content)
+}
+
+
+export function claimTicket(ticket, btn, csrf){
+    fetch('/claim', {
+        method: 'PUT',
+        headers:{'X-CSRFToken': csrf},
+        body: JSON.stringify({
+            ticket: ticket
+        })
+    })
+        .then(response => response.json())
+        .then(response =>{
+
+            if (response.error){
+                displayMessage(response.message)
+            }
+            else{
+                displayMessage(response.message)
+                btn.remove()
+            }
+        })
 }

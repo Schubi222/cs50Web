@@ -8,13 +8,16 @@ function loadAllPosts()
 {
     const all_tickets_div = document.getElementById('all_tickets')
     all_tickets_div.innerHTML = ''
+    const active_user = JSON.parse(document.getElementById('active_user').textContent)
+    const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
 
     fetch('getalltickets')
         .then(response => response.json())
         .then(tickets => {
             if (tickets.tickets.length === 0){all_tickets_div.innerHTML = '<h3>There are currently no tickets! </h3>'; return}
             for (let i = 0; i < tickets.tickets.length; i++) {
-                listedHTMLContainer(all_tickets_div, tickets.tickets[i],'all_tickets', [tickets.age[i]])
+                listedHTMLContainer(all_tickets_div, tickets.tickets[i],'all_tickets',
+                    [tickets.age[i],active_user, csrf])
             }
         })
 }

@@ -4,7 +4,7 @@
 {% block script %}
     <link rel="stylesheet" href="{% static 'container.css' %}">
     <script type="module" src="{% static 'myTicket.js' %}"></script>
-    {{ response.user | json_script:"active_user" }}
+    {{ request.user.serialize|json_script:"active_user" }}
 {% endblock %}
 
 {% block body %}

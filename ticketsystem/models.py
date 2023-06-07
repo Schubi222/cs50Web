@@ -11,6 +11,15 @@ class User(AbstractUser):
         Lead_Worker = "Lead_Worker"
 
     permission = models.CharField(choices=Permission.choices, max_length=16)
+    team = models.IntegerField(blank=True, null=True)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "permission": self.permission,
+            "team": self.team,
+        }
 
 
 class Ticket(models.Model):
@@ -34,7 +43,7 @@ class Ticket(models.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "owner": self.owner.username,
+            "owner": self.owner.permission,
             "content": self.content,
             "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p"),
             "image": self.image,

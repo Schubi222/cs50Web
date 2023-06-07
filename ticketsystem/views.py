@@ -65,6 +65,18 @@ def my_tickets(request):
     return render(request, "myticket.html")
 
 
+def my_team(request):
+    pass
+
+
+def create_worker(request):
+    pass
+
+
+def change_permissions(request):
+    pass
+
+
 @login_required
 def my_tickets_get(request):
     user = request.user
@@ -92,9 +104,47 @@ def profile(request, username):
     pass
 
 
+def claim_ticket(request):
+    active_user = request.user
+
+    if active_user.is_anonymous:
+        return JsonResponse({
+            "message": "You have to be logged in to do that!",
+            'error': True
+        })
+
+    user = User.objects.get(username=active_user)
+
+    if user.permission != User.Permission.Lead_Worker and user.permission != User.Permission.Worker:
+        return JsonResponse({
+            "message": "You do not have the permission to do that",
+            'error': True
+        })
+
+    data = json.loads(request.body)
+
+    ticket = data.get('ticket')
+    ticket = Ticket.objects.get(id=ticket['id'])
+
+    if ticket.assigned_to and user.permission != User.Permission.Lead_Worker:
+        return JsonResponse({
+            "message": "You do not have the permission to do that",
+            'error': True
+        })
+
+    ticket.assigned_to = user
+    ticket.save()
+
+    return JsonResponse({
+        "message": "Ticket successfully claimed!",
+        'error': False
+    })
+
+
 def ticket(request, id):
 
     user = request.user
+    user_ = User.objects.get(username=user)
     if user.is_anonymous:
         # TODO: Notification
         return HttpResponseRedirect(reverse('index'))

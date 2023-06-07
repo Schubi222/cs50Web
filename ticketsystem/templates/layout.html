@@ -12,19 +12,23 @@
         {% endblock %}
     </head>
     <body>
+    {% csrf_token %}
         <div class="layout_menu_div">
+
             <div id="layout_menu_hamburger_wrapper">
                 <div id="layout_menu_hamburger_before" class=" layout_menu_hamburger_style"></div>
                 <div id="layout_menu_hamburger_middle" class=" layout_menu_hamburger_style"></div>
                 <div id="layout_menu_hamburger_after" class=" layout_menu_hamburger_style"></div>
             </div>
 
-
             <ul id="layout_menu_ul">
                     <li class="layout_menu_li" data-url="tickets">Tickets</li>
                 {% if user.is_authenticated %}
                     <li class="layout_menu_li" data-url="mytickets">My Tickets</li>
                     <li class="layout_menu_li" data-url="mydashboard">My Dashboard</li>
+                    {% if user.permission == user.Permission.Lead_Worker %}
+                        <li class="layout_menu_li" data-url="myteam">My Team</li>
+                    {% endif %}
                     <li class="layout_menu_li" data-url="logout">Logout</li>
                 {% else %}
                     <li class="layout_menu_li" data-url="login">Login</li>
