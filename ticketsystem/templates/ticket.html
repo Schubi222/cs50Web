@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{% static 'ticket.css' %}">
     <link rel="stylesheet" href="{% static 'form.css' %}">
     <link rel="stylesheet" href="{% static 'container.css' %}">
+    <link rel="stylesheet" href="{% static 'singleTicket.css' %}">
     <script type="module" src={% static 'singleTicket.js' %}></script>
      {{ ticket|json_script:"ticket" }}
     {{ request.user.serialize|json_script:"active_user" }}
@@ -14,11 +15,16 @@
 {% block body %}
     {% if ticket %}
         <div class="ticket_wrapper">
-
-        {% if not ticket.assigned_to and user.permission == user.Permission.Lead_Worker or user.permission == user.Permission.Worker %}
-            <button id="claim_btn" class="single_ticket_ticket_claim ticket_claim">Claim</button>
+        {% if ticket.closed %}
+            <div class="ticket_closed">This ticket has been closed!</div>
+        {% else %}
+            {% if not ticket.assigned_to and user.permission == user.Permission.Lead_Worker or user.permission == user.Permission.Worker %}
+                <button id="claim_btn" class="single_ticket_ticket_claim btn">Claim</button>
+            {% endif %}
+            {% if ticket.assigned_to == user.username or ticket.owner == user.username or user.permission == user.Permission.Lead_Worker %}
+                <button id="close_btn" class="single_ticket_ticket_close btn">Close Ticket</button>
+            {% endif %}
         {% endif %}
-
             <div class="ticket_head">
                 <div class="ticket_author">Created by: <a href="#" class="ticket_author_link">{{ ticket.owner }}</a></div>
                 <div class="ticket_assigned_to" id="assigned_to">Assigned to:

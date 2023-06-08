@@ -77,7 +77,6 @@ export function claimTicket(ticket, btn, csrf){
     })
         .then(response => response.json())
         .then(response =>{
-
             if (response.error){
                 displayMessage(response.message)
             }

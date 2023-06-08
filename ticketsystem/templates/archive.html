@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block script %}
+    <link rel="stylesheet" href="{% static 'ticket.css' %}">
+    <link rel="stylesheet" href="{% static 'noSelect.css' %}">
+    <link rel="stylesheet" href="{% static 'form.css' %}">
+    <link rel="stylesheet" href="{% static 'container.css' %}">
+
+    <script type="module" src="{% static 'archive.js' %}"></script>
+
+    {{ request.user.serialize|json_script:"active_user" }}
+
+{% endblock %}
+
+{% block title %}Archive{% endblock %}
+
+{% block body %}
+    <h1 class="home_heading">Archive</h1>
+    <div id="all_archive" class="container"></div>
+{% endblock %}

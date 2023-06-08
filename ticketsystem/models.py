@@ -37,7 +37,7 @@ class Ticket(models.Model):
         New = "New"
 
     status = models.CharField(choices=Status.choices, max_length=16)
-    # type = models.ForeignKey("LogEntry", on_delete=models.CASCADE, null=True, blank=True, related_name='ticket')
+    closed = models.BooleanField(default=False)
 
     # TODO: Image sollten mehrere sein können
     def serialize(self):
@@ -50,6 +50,7 @@ class Ticket(models.Model):
             "assigned_to": self.assigned_to.username if self.assigned_to else None,
             "status": self.status,
             "log": [entry.id for entry in self.log_entries.all()],
+            "closed": self.closed
             # "type": self.type.type if self.type else None,
         }
 

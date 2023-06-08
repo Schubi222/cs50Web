@@ -16,6 +16,9 @@ function loadAllPosts()
         .then(tickets => {
             if (tickets.tickets.length === 0){all_tickets_div.innerHTML = '<h3>There are currently no tickets! </h3>'; return}
             for (let i = 0; i < tickets.tickets.length; i++) {
+
+                if (tickets.tickets[i].closed){continue}
+
                 listedHTMLContainer(all_tickets_div, tickets.tickets[i],'all_tickets',
                     [tickets.age[i],active_user, csrf])
             }
@@ -41,6 +44,11 @@ function createNewTicket(){
     const form = document.getElementById('newTicket_Form')
     const textarea = document.getElementById('newTicket_Form_Textarea')
     const content_ = textarea.value
+    if (content_ === "")
+    {
+        displayMessage('Please enter a message')
+        return
+    }
     textarea.value = ''
     const csrf = form.elements['csrfmiddlewaretoken'].value
     const imgs = document.getElementById('newTicket_Image')

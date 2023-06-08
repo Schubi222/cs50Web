@@ -16,6 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Ticket, LogEntry
 
+PERMISSION_DENIED_MESSAGE = "You do not have the permission to do that"
 
 # Helper Functions
 # Returns number of days
@@ -104,6 +105,55 @@ def profile(request, username):
     pass
 
 
+def archive(request, operation="init"):
+    if operation == "get":
+        user = User.objects.get(username=request.user)
+        tickets = []
+        ages = []
+        if user.permission == User.Permission.User:
+            tickets = Ticket.objects.filter(owner=user)
+            tickets, ages = prep_tickets(tickets)
+        else:
+            tickets = Ticket.objects.all()
+            tickets, ages = prep_tickets(tickets)
+
+        return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets],
+                             'age': ages}, safe=False)
+    else:
+        return render(request,'archive.html')
+
+
+def close_ticket(request, id):
+    user = request.user
+    user = User.objects.get(username=user)
+    ticket = Ticket.objects.get(id=id)
+
+    if not ticket:
+        return JsonResponse({
+            "message": "Ticket does not exist!",
+            'error': True
+        })
+    if user.permission != User.Permission.Lead_Worker and user != ticket.owner and user != ticket.assigned_to:
+        return JsonResponse({
+            "message": PERMISSION_DENIED_MESSAGE,
+            'error': True
+        })
+
+    ticket.closed = True
+    ticket.save()
+
+    entry = LogEntry()
+    entry.content = f"Ticket({ticket.id}) has been closed by {request.user}"
+    entry.ticket = ticket
+    entry.type = LogEntry.Type.Notification
+    entry.save()
+
+    return JsonResponse({
+        "message": "Ticket has been closed",
+        'error': False
+    })
+
+
 def claim_ticket(request):
     active_user = request.user
 
@@ -117,7 +167,7 @@ def claim_ticket(request):
 
     if user.permission != User.Permission.Lead_Worker and user.permission != User.Permission.Worker:
         return JsonResponse({
-            "message": "You do not have the permission to do that",
+            "message": PERMISSION_DENIED_MESSAGE,
             'error': True
         })
 
@@ -128,12 +178,18 @@ def claim_ticket(request):
 
     if ticket.assigned_to and user.permission != User.Permission.Lead_Worker:
         return JsonResponse({
-            "message": "You do not have the permission to do that",
+            "message": PERMISSION_DENIED_MESSAGE,
             'error': True
         })
 
     ticket.assigned_to = user
     ticket.save()
+
+    entry = LogEntry()
+    entry.content = f"Ticket({ticket.id}) has been claimed by {ticket.assigned_to.username}"
+    entry.ticket = ticket
+    entry.type = LogEntry.Type.Notification
+    entry.save()
 
     return JsonResponse({
         "message": "Ticket successfully claimed!",

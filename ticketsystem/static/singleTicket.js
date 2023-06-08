@@ -2,16 +2,41 @@ import {createHTML, listedHTMLContainer, displayMessage, claimTicket} from './ut
 document.addEventListener('DOMContentLoaded', ()=>{
     loadLog()
     document.getElementById('ticket_new_comment_form').addEventListener('submit', () =>{comment()})
-    document.getElementById('claim_btn')?.addEventListener('click', () => {
-        const ticket = JSON.parse(document.getElementById('ticket').textContent)
-        const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
-        const user = JSON.parse(document.getElementById('active_user').textContent)
-        claimTicket(ticket,document.getElementById('claim_btn'),csrf)
-        document.getElementById('assigned_to').innerHTML=
-            `Assigned to: <a href="profile/${user.username}" className="ticket_assigned_to">${user.username}</a>`
-    })
+    document.getElementById('claim_btn')?.addEventListener('click', () => singleTicketClaim())
+    document.getElementById('close_btn')?.addEventListener('click', () => closeTicket())
 })
 
+function closeTicket() {
+    const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
+    const ticket = JSON.parse(document.getElementById('ticket').textContent)
+    fetch(`/ticket/${ticket.id}/close`, {
+        method: 'PUT',
+        headers: {'X-CSRFToken': csrf},
+        body: JSON.stringify({})
+    })
+        .then(response => response.json())
+        .then(response => {
+            if (response.error) {
+                displayMessage(response.message)
+            } else {
+                //TODO:Check ob message überhaupt auftaucht
+                displayMessage(response.message)
+                location.reload()
+            }
+        })
+}
+function singleTicketClaim(){
+    const ticket = JSON.parse(document.getElementById('ticket').textContent)
+    const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
+    const user = JSON.parse(document.getElementById('active_user').textContent)
+
+    claimTicket(ticket,document.getElementById('claim_btn'),csrf)
+
+    document.getElementById('assigned_to').innerHTML=
+        `Assigned to: <a href="profile/${user.username}" className="ticket_assigned_to">${user.username}</a>`
+
+    setTimeout(() => { loadLog()  }, 300);
+}
 function comment(){
     const form = document.getElementById('ticket_new_comment_form')
     const textarea = document.getElementById('ticket_new_comment_form_Textarea')
@@ -34,7 +59,6 @@ function comment(){
         .then(r =>{
             if (!r.error) {
                 loadLog()
-                console.log("test")
             }
 
             else{
@@ -52,7 +76,6 @@ function loadLog(){
         .then(response => response.json())
         .then(r =>{
             if (r.entries.length !== 0){
-                console.log(r.entries)
                 createHTML(parent,'h1',['home_heading'],'Log')
             }
             r.entries.forEach(entry=>{

@@ -20,6 +20,9 @@ function loadMyTickets(){
             if (user_tickets.tickets)
                 createHTML(div, 'h2', ['my_tickets_heading'],'My tickets')
             for (let i = 0; i < user_tickets.tickets?.length; i++) {
+
+                if (user_tickets.tickets[i].closed){continue}
+
                 const age = user_tickets.ages[i]
                 const ticket = user_tickets.tickets[i]
                 listedHTMLContainer(div, ticket,'my_ticket', [age, active_user, csrf])
@@ -28,6 +31,9 @@ function loadMyTickets(){
             if (response.worker_tickets.tickets)
                 createHTML(div, 'h2', ['my_tickets_heading'],'My assigned tickets')
             for (let i = 0; i < worker_tickets.tickets?.length; i++) {
+
+                if (worker_tickets.tickets[i].closed){continue}
+
                 const age = worker_tickets.ages[i]
                 const ticket = worker_tickets.tickets[i]
                 listedHTMLContainer(div, ticket,'my_ticket', [age, active_user, csrf])

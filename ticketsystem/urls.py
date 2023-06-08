@@ -13,9 +13,12 @@ urlpatterns = [
     path("myteam", views.my_team, name="myteam"),
     path("profile/<str:username>", views.profile, name="profile"),
     path("ticket/<int:id>", views.ticket, name="ticket"),
+    path("ticket/<int:id>/close", views.close_ticket, name="closeticket"),
     path("getalltickets", views.get_all_tickets, name="getalltickets"),
     path("newticket", views.new_ticket, name="newticket"),
     path("newcomment", views.new_comment, name="newcomment"),
     path("getallentries/<int:ticket_id>", views.get_all_entries_for_ticket, name="getallentries"),
     path("claim", views.claim_ticket, name="claim"),
+    path("archive", views.archive, name="archive"),
+    path("archive/<str:operation>", views.archive, name="archive"),
 ]
