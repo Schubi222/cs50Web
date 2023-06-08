@@ -1,4 +1,5 @@
 import json
+from django.db import models
 
 from django.db import IntegrityError
 from django.shortcuts import render
@@ -14,9 +15,10 @@ from django.contrib.auth.decorators import login_required
 #TODO: For testing only
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import User, Ticket, LogEntry
+from .models import User, Ticket, LogEntry, Team
 
-PERMISSION_DENIED_MESSAGE = "You do not have the permission to do that"
+PERMISSION_DENIED_MESSAGE = "You do not have the permission to do that!"
+
 
 # Helper Functions
 # Returns number of days
@@ -66,8 +68,47 @@ def my_tickets(request):
     return render(request, "myticket.html")
 
 
-def my_team(request):
-    pass
+def my_team(request, operation="init"):
+    if operation == "init":
+        return render(request, "myteam.html")
+
+    user = User.objects.get(username=request.user)
+
+    if not user.team.exists() and not user.team_to_lead.exists():
+        return JsonResponse({
+            'message': "You are not part of any team!",
+            'error': True
+        })
+
+    team = user.team if user.team else user.team_to_lead
+    print(team)
+    member = User.objects.filter(team=team)
+    leader = User.objects.filter(team_to_lead=team)
+
+    if operation == "team":
+
+        return JsonResponse({
+            'member': [member.serialize() for member in member],
+            'leader': [leader.serialize() for leader in leader],
+            'error': False
+        })
+
+    elif operation == "tickets":
+        member.extends(leader)
+        tickets = []
+        for member_ in member:
+            tickets.extend(member_.tickets)
+
+        return JsonResponse({
+            'tickets': [ticket.serialize() for ticket in tickets],
+            'error': False
+        })
+
+    else:
+        return JsonResponse({
+            "message": "Something went wrong!",
+            'error': True
+            })
 
 
 def create_worker(request):

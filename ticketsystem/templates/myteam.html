@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block script %}
+    <script type="module" src="{% static 'myTeam.js' %}"></script>
+    <script type="module" src={% static 'util.js' %}></script>
+    {{ request.user.serialize|json_script:"active_user" }}
+{% endblock %}
+
+{% block body %}
+    <div id="myTeam_Team"></div>
+    <div id="myTeam_Team_Tickets"></div>
+{% endblock %}

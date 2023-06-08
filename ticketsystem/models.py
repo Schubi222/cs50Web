@@ -11,14 +11,29 @@ class User(AbstractUser):
         Lead_Worker = "Lead_Worker"
 
     permission = models.CharField(choices=Permission.choices, max_length=16)
-    team = models.IntegerField(blank=True, null=True)
 
     def serialize(self):
         return {
             "id": self.id,
             "username": self.username,
             "permission": self.permission,
-            "team": self.team,
+            "team": [team for team in self.team.all()],
+            "team_to_lead": [lead for lead in self.team_to_lead.all()],
+        }
+
+
+class Team(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=160, unique=True)
+    leader = models.ManyToManyField("User", blank=True, related_name="team_to_lead")
+    member = models.ManyToManyField("User", blank=True, related_name="team")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "leaders": [leader.id for leader in self.leader.all()],
+            "member": [member.id for member in self.member.all()],
         }
 
 
@@ -43,7 +58,7 @@ class Ticket(models.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "owner": self.owner.permission,
+            "owner": self.owner.username,
             "content": self.content,
             "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p"),
             "image": self.image,

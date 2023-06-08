@@ -11,6 +11,7 @@ urlpatterns = [
     path("mytickets/get", views.my_tickets_get, name="mytickets_get"),
     path("mydashboard", views.my_dashboard, name="mydashboard"),
     path("myteam", views.my_team, name="myteam"),
+    path("myteam/<str:operation>", views.my_team, name="myteam"),
     path("profile/<str:username>", views.profile, name="profile"),
     path("ticket/<int:id>", views.ticket, name="ticket"),
     path("ticket/<int:id>/close", views.close_ticket, name="closeticket"),
