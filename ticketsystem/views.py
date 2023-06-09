@@ -69,6 +69,7 @@ def my_tickets(request):
 
 
 def my_team(request, operation="init"):
+
     if operation == "init":
         return render(request, "myteam.html")
 
@@ -148,8 +149,9 @@ def my_tickets_get(request):
                          }, safe=False)
 
 
-def my_dashboard(request):
-    pass
+def my_dashboard(request, operation='init'):
+    if operation is 'init':
+        return render(request, "dashboard.html")
 
 
 def profile(request, username):
@@ -159,15 +161,16 @@ def profile(request, username):
 def archive(request, operation="init"):
     if operation == "get":
         user = User.objects.get(username=request.user)
+
         tickets = []
-        ages = []
+
         if user.permission == User.Permission.User:
             tickets = Ticket.objects.filter(owner=user)
-            tickets, ages = prep_tickets(tickets)
+
         else:
             tickets = Ticket.objects.all()
-            tickets, ages = prep_tickets(tickets)
 
+        tickets, ages = prep_tickets(tickets)
         tickets = tickets.filter(closed=True).all()
 
         return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets],
