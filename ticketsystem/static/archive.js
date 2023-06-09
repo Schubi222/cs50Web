@@ -16,7 +16,7 @@ function loadArchive(){
             if (response.tickets.length === 0){parent.innerHTML = '<h3>There are currently no tickets in the archive! </h3>'; return}
             for (let i = 0; i < response.tickets.length; i++) {
 
-                if (!response.tickets[i].closed){continue}
+
 
                 listedHTMLContainer(parent, response.tickets[i],'all_tickets',
                     [response.age[i],active_user, csrf])

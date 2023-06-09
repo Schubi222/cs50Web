@@ -15,8 +15,8 @@ export function createHTML(parent,type, classnames, content){
     return elem
 }
 
-export function displayMessage(content){
-
+export function displayMessage(content, error){
+    console.log(content)
 }
 
 
@@ -78,10 +78,10 @@ export function claimTicket(ticket, btn, csrf){
         .then(response => response.json())
         .then(response =>{
             if (response.error){
-                displayMessage(response.message)
+                displayMessage(response.message, response.error)
             }
             else{
-                displayMessage(response.message)
+                displayMessage(response.message, response.error)
                 btn.remove()
             }
         })

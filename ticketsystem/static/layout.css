@@ -125,3 +125,31 @@ html{color: var(--primary-color);}
     rotate: -45deg;
     top: 25px;
 }
+
+#layout_profile{
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    height: 42px;
+
+    margin: 5px;
+    padding: 0 10px;
+
+    display: flex;
+    align-items: center;
+
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--main-color);
+
+    border: var(--main-color) 1px solid;
+
+    cursor: pointer;
+
+    transition: all .3s ease-in-out;
+}
+#layout_profile:hover{
+    border: var(--call-to-action) 1px solid;
+    color: var(--call-to-action);
+}

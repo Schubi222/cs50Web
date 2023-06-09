@@ -17,7 +17,6 @@ function loadAllPosts()
             if (tickets.tickets.length === 0){all_tickets_div.innerHTML = '<h3>There are currently no tickets! </h3>'; return}
             for (let i = 0; i < tickets.tickets.length; i++) {
 
-                if (tickets.tickets[i].closed){continue}
 
                 listedHTMLContainer(all_tickets_div, tickets.tickets[i],'all_tickets',
                     [tickets.age[i],active_user, csrf])
@@ -46,7 +45,7 @@ function createNewTicket(){
     const content_ = textarea.value
     if (content_ === "")
     {
-        displayMessage('Please enter a message')
+        displayMessage('Please enter a message', true)
         return
     }
     textarea.value = ''
@@ -66,7 +65,7 @@ function createNewTicket(){
                 if (!r.error)
                     loadAllPosts()
                 else{
-                    displayMessage(r.message)
+                    displayMessage(r.message, r.error)
                 }
         })
     })

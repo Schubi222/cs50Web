@@ -17,10 +17,10 @@ function closeTicket() {
         .then(response => response.json())
         .then(response => {
             if (response.error) {
-                displayMessage(response.message)
+                displayMessage(response.message, response.error)
             } else {
                 //TODO:Check ob message überhaupt auftaucht
-                displayMessage(response.message)
+                displayMessage(response.message, response.error)
                 location.reload()
             }
         })
@@ -62,7 +62,7 @@ function comment(){
             }
 
             else{
-                displayMessage(r.message)
+                displayMessage(r.message, r.error)
             }
         })
 }
@@ -96,27 +96,3 @@ function loadLog(){
 
 
 }
-
-// function createCommentHTML(parent, entry){
-//     // const div = createHTML(parent, 'div', ['log_entry_wrapper','log_entry_comment_wrapper'],'')
-//     //
-//     // const head = createHTML(div, 'div', ['log_entry_head','log_entry_comment_head'],'')
-//
-//     // const author = createHTML(head, 'div', ['log_entry_comment_author'],'')
-//     // const author_link = createHTML(author, 'a', ['log_entry_link','log_entry_comment_author_link'],entry.owner)
-//     // author_link.href=`profile/${entry.owner}`
-//     // const creation_date = createHTML(head, 'div', ['log_entry_date'],entry.timestamp)
-//
-//     // const body = createHTML(div, 'div', ['log_entry_body','log_entry_comment_body'],entry.content)
-//
-// }
-
-// function createNotificationHTML(parent, entry){
-//     // const div = createHTML(parent, 'div', ['log_entry_wrapper','log_entry_notification_wrapper'],'')
-//     //
-//     // const head = createHTML(div, 'div', ['log_entry_head','log_entry_notification_head'],'')
-//     //
-//     // const creation_date = createHTML(head, 'div', ['log_entry_date'],entry.timestamp)
-//     //
-//     // const body = createHTML(div, 'div', ['log_entry_body','log_entry_notification_body'],entry.content)
-// }

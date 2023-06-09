@@ -2,6 +2,17 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+class Team(models.Model):
+    name = models.CharField(max_length=160, unique=True, primary_key=True)
+
+    def serialize(self):
+        return {
+            "name": self.name,
+            "leaders": [leader.username for leader in self.leaders.all()],
+            "member": [member.username for member in self.members.all()],
+        }
+
+
 class User(AbstractUser):
     id = models.AutoField(primary_key=True)
 
@@ -11,29 +22,16 @@ class User(AbstractUser):
         Lead_Worker = "Lead_Worker"
 
     permission = models.CharField(choices=Permission.choices, max_length=16)
+    leader_of = models.ForeignKey("Team", blank=True, null=True, on_delete=models.SET_NULL, related_name="leaders")
+    member_of = models.ForeignKey("Team", blank=True, null=True, on_delete=models.SET_NULL, related_name="members")
 
     def serialize(self):
         return {
             "id": self.id,
             "username": self.username,
             "permission": self.permission,
-            "team": [team for team in self.team.all()],
-            "team_to_lead": [lead for lead in self.team_to_lead.all()],
-        }
-
-
-class Team(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=160, unique=True)
-    leader = models.ManyToManyField("User", blank=True, related_name="team_to_lead")
-    member = models.ManyToManyField("User", blank=True, related_name="team")
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "leaders": [leader.id for leader in self.leader.all()],
-            "member": [member.id for member in self.member.all()],
+            "member_of": self.member_of.name if self.member_of else None,
+            "leader_of": self.leader_of.name if self.leader_of else None,
         }
 
 

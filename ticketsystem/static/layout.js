@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
     document.getElementById('layout_menu_hamburger_wrapper').addEventListener('click', () =>{layout()})
     makeLayoutLinksClickable()
+    document.getElementById('layout_profile')?.addEventListener('click', () => loadProfile())
     const message = document.getElementById('message_div')
     if (message) {messageFade(message)}
 })
@@ -40,4 +41,9 @@ function makeLayoutLinksClickable()
         li.addEventListener('click', () =>{window.location.replace(url)})
 
     })
+}
+
+function loadProfile(){
+    const user = JSON.parse(document.getElementById('active_user').textContent)
+    window.location = `${window.origin}/profile/${user.username}`
 }

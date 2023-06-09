@@ -74,16 +74,16 @@ def my_team(request, operation="init"):
 
     user = User.objects.get(username=request.user)
 
-    if not user.team.exists() and not user.team_to_lead.exists():
+    if not user.member_of and not user.leader_of:
         return JsonResponse({
             'message': "You are not part of any team!",
             'error': True
         })
 
-    team = user.team if user.team else user.team_to_lead
-    print(team)
-    member = User.objects.filter(team=team)
-    leader = User.objects.filter(team_to_lead=team)
+    team = user.member_of if user.member_of else user.leader_of
+
+    member = User.objects.filter(member_of=team.name).all()
+    leader = User.objects.filter(leader_of=team.name).all()
 
     if operation == "team":
 
@@ -94,13 +94,20 @@ def my_team(request, operation="init"):
         })
 
     elif operation == "tickets":
-        member.extends(leader)
-        tickets = []
+
+        member = list(member)
+        member.extend(leader)
+        tickets = Ticket.objects.none()
+
         for member_ in member:
-            tickets.extend(member_.tickets)
+            tickets = tickets | member_.assigned_tickets.all()
+        tickets, ages = prep_tickets(tickets)
+
+        tickets = tickets.filter(closed=False).all()
 
         return JsonResponse({
             'tickets': [ticket.serialize() for ticket in tickets],
+            'ages': ages,
             'error': False
         })
 
@@ -133,6 +140,9 @@ def my_tickets_get(request):
     user_tickets, user_ages = prep_tickets(user_tickets)
     worker_tickets, worker_ages = prep_tickets(worker_tickets)
 
+    user_tickets = user_tickets.filter(closed=False).all()
+    worker_tickets = worker_tickets.filter(closed=False).all()
+
     return JsonResponse({'user_tickets': {'tickets': [elem.serialize() for elem in user_tickets] if user_tickets else None,'ages': user_ages},
                         'worker_tickets': {'tickets': [elem.serialize() for elem in worker_tickets] if worker_tickets else None, 'ages': worker_ages}
                          }, safe=False)
@@ -158,6 +168,8 @@ def archive(request, operation="init"):
             tickets = Ticket.objects.all()
             tickets, ages = prep_tickets(tickets)
 
+        tickets = tickets.filter(closed=True).all()
+
         return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets],
                              'age': ages}, safe=False)
     else:
@@ -181,6 +193,7 @@ def close_ticket(request, id):
         })
 
     ticket.closed = True
+    ticket.status = Ticket.Status.Done
     ticket.save()
 
     entry = LogEntry()
@@ -224,6 +237,7 @@ def claim_ticket(request):
         })
 
     ticket.assigned_to = user
+    ticket.status = Ticket.Status.Assigned
     ticket.save()
 
     entry = LogEntry()
@@ -262,9 +276,10 @@ def ticket(request, id):
 
 def get_all_tickets(request):
     tickets = Ticket.objects.all()
+    tickets = tickets.filter(closed=False).all()
     tickets, ages = prep_tickets(tickets)
 
-    return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets], 'age': ages}, safe=False)
+    return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets] if tickets else [], 'age': ages}, safe=False)
 
 
 # TODO: Maybe error ahndling

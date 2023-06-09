@@ -7,6 +7,7 @@
         <title>Ticketsystem | {% block title %}{% endblock %}</title>
         <link href="{% static 'layout.css' %}" rel="stylesheet">
         <script type="module" src="{% static 'layout.js' %}"></script>
+        {{ request.user.serialize|json_script:"active_user" }}
         {% block script %}
 
         {% endblock %}
@@ -37,6 +38,10 @@
                 {% endif %}
 
             </ul>
+        {% if user.is_authenticated %}
+            <div id="layout_profile" onclick="{% url 'profile' user.username %}">{{ user.username }}</div>
+        {% endif %}
+
         </div>
         {% if message %}
         <div id="message_div">{{ message }}</div>
