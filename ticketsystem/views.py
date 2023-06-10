@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
+from django.db.models import Q
 
 from datetime import datetime, timezone
 import datetime
@@ -149,9 +150,62 @@ def my_tickets_get(request):
                          }, safe=False)
 
 
+def dashboard_get_tickets_last_30_days(user, closed, team=None, all_teams=False, not_assigned=False):
+    if all_teams:
+        if not_assigned:
+            tickets = Ticket.objects.filter(assigned_to=None)
+        else:
+            tickets = Ticket.objects.filter(assigned_to=not None)
+    elif team is not None:
+        tickets = Ticket.objects.filter(Q(assigned_to__leader_of=team) | Q(assigned_to__member_of=team))
+    else:
+        tickets = Ticket.objects.filter(assigned_to=user).all()
+
+    tickets = tickets.filter(closed=closed)
+
+    now = datetime.datetime.now(timezone.utc)
+
+    deadline_deltatime = datetime.timedelta(days=30)
+    deadline = now - deadline_deltatime
+
+    tickets_in_time = []
+
+    for ticket in tickets:
+        if ticket.closed_at_time and ticket.closed_at_time > deadline:
+            tickets_in_time.append(ticket)
+
+    return tickets_in_time if closed else tickets
+
+
+# TODO: Potential für eigene angaben z.b. wie viele tage
 def my_dashboard(request, operation='init'):
-    if operation is 'init':
+    if operation == 'init':
         return render(request, "dashboard.html")
+    user = User.objects.get(username=request.user)
+    team = user.leader_of if user.leader_of else user.member_of
+
+    tickets_assigned_to_user_open = dashboard_get_tickets_last_30_days(user, False)
+    tickets_assigned_to_user_closed = dashboard_get_tickets_last_30_days(user, True)
+
+    if team:
+        tickets_assigned_to_team_open = dashboard_get_tickets_last_30_days(user, False, team.name)
+        tickets_assigned_to_team_closed = dashboard_get_tickets_last_30_days(user, True, team.name)
+
+    tickets_all_open = dashboard_get_tickets_last_30_days(user, False, all_teams=True)
+    tickets_all_closed = dashboard_get_tickets_last_30_days(user, True, all_teams=True)
+
+    tickets_all_not_assigned = dashboard_get_tickets_last_30_days(user, False, all_teams=True, not_assigned=True)
+
+    return JsonResponse({
+        'count_of_tickets_assigned_to_user_open': len(tickets_assigned_to_user_open),
+        'count_of_tickets_assigned_to_user_closed': len(tickets_assigned_to_user_closed),
+        'count_of_tickets_assigned_to_team_open': len(tickets_assigned_to_team_open) if team else "No Team",
+        'count_of_tickets_assigned_to_team_closed': len(tickets_assigned_to_team_closed) if team else "No Team",
+        'count_of_tickets_all_open': len(tickets_all_open),
+        'count_of_tickets_all_closed': len(tickets_all_closed),
+        'count_of_tickets_all_not_assigned': len(tickets_all_not_assigned),
+    })
+
 
 
 def profile(request, username):
@@ -197,6 +251,7 @@ def close_ticket(request, id):
 
     ticket.closed = True
     ticket.status = Ticket.Status.Done
+    ticket.closed_at_time = datetime.datetime.now(timezone.utc)
     ticket.save()
 
     entry = LogEntry()
