@@ -1,0 +1,13 @@
+#all_charts{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.chart{
+    width: 400px;
+    height: 300px;
+}
+
+.chart text{
+    font-size: .8rem;
+}

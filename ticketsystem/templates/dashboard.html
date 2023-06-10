@@ -6,8 +6,15 @@
 {% block script %}
     <script type="module" src="{% static 'dashboard.js' %}"></script>
     <link rel="stylesheet" href="{% static 'dashboard.css' %}">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
 {% endblock %}
 
 {% block body %}
+    <div id="all_charts">
+        <div id="chart_div1" class="chart"></div>
+        <div id="chart_div2" class="chart"></div>
+        <div id="chart_div3" class="chart"></div>
+    </div>
 
 {% endblock %}

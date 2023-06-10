@@ -197,15 +197,14 @@ def my_dashboard(request, operation='init'):
     tickets_all_not_assigned = dashboard_get_tickets_last_30_days(user, False, all_teams=True, not_assigned=True)
 
     return JsonResponse({
-        'count_of_tickets_assigned_to_user_open': len(tickets_assigned_to_user_open),
-        'count_of_tickets_assigned_to_user_closed': len(tickets_assigned_to_user_closed),
-        'count_of_tickets_assigned_to_team_open': len(tickets_assigned_to_team_open) if team else "No Team",
-        'count_of_tickets_assigned_to_team_closed': len(tickets_assigned_to_team_closed) if team else "No Team",
-        'count_of_tickets_all_open': len(tickets_all_open),
-        'count_of_tickets_all_closed': len(tickets_all_closed),
-        'count_of_tickets_all_not_assigned': len(tickets_all_not_assigned),
+        'Your open tickets': len(tickets_assigned_to_user_open),
+        'Your closed tickets': len(tickets_assigned_to_user_closed),
+        'Your team\'s open tickets': len(tickets_assigned_to_team_open) if team else "No Team",
+        'Your team\'s closed tickets': len(tickets_assigned_to_team_closed) if team else "No Team",
+        'All assigned tickets': len(tickets_all_open),
+        'All closed tickets': len(tickets_all_closed),
+        'All not assigned tickets': len(tickets_all_not_assigned),
     })
-
 
 
 def profile(request, username):
