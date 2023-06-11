@@ -9,7 +9,7 @@ body{
     width: 100%;
 }
 html{color: var(--primary-color);}
-
+h2{text-align: center;}
 #content_wrapper{
     padding: 10px;
     display: flex;
@@ -31,12 +31,14 @@ html{color: var(--primary-color);}
     left: 0;
     right: 0;
     margin: 0 auto;
+    z-index: 10;
 }
 .layout_menu_div{
     background-color: var(--primary-color);
     padding: 10px;
     margin: 0;
     height: 35px;
+    z-index: 9;
 }
 
 #layout_menu_hamburger_wrapper{
@@ -68,6 +70,8 @@ html{color: var(--primary-color);}
     width: 300px;
     height: 100%;
     left: 0;
+
+    z-index: 9;
 
     visibility: hidden;
     background: transparent;

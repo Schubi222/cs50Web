@@ -9,10 +9,38 @@
     <link rel="stylesheet" href="{% static 'container.css' %}">
     <link rel="stylesheet" href="{% static 'noSelect.css' %}">
     <link rel="stylesheet" href="{% static 'myTeam.css' %}">
+    <link rel="stylesheet" href="{% static 'form.css' %}">
 
 {% endblock %}
 
 {% block body %}
     <div id="myTeam_Team"></div>
-    <div id="myTeam_Team_Tickets"></div>
+    <div id="myTeam_Team_Tickets" class="container"></div>
+    <div id="myTeam_create_worker" class="form_wrapper">
+        <div class="myTeam_create_worker_header">
+            <div id="back_btn">&larr;</div>
+            <h3 id="myTeam_create_worker_heading"></h3>
+        </div>
+        <form id="register_form" class="form" action="{% url 'createworker' %}" method="post">
+            <div class="register_form_group">
+                <input class="form_input" autofocus type="text" name="username" placeholder="Username">
+            </div>
+            <div class="register_form_group">
+                <input class="form_input" type="email" name="email" placeholder="Email Address">
+            </div>
+            <div class="register_form_group">
+                <input class="form_input" type="password" name="password" placeholder="Password">
+            </div>
+            <div class="register_form_group">
+                <input class="form_input" type="password" name="confirmation" placeholder="Confirm Password">
+            </div>
+            <div class="register_form_group">
+                <input class="form_input" id="Lead_Worker" type="radio" name="permission" value="Lead_Worker">
+                <label for="Lead_Worker">Team Leader</label><br>
+                <input class="form_input" id="Worker" type="radio" name="permission" value="Worker">
+                <label for="Worker">Worker</label><br>
+            </div>
+            <input id="register_submit_btn" type="submit" value="Register">
+        </form>
+    </div>
 {% endblock %}

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () =>{
 })
 
 function loadMyTeam(){
+
     const active_user = JSON.parse(document.getElementById('active_user').textContent)
     if (!active_user || active_user.permission === "User")
     {
@@ -14,11 +15,17 @@ function loadMyTeam(){
     const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
     const team_div = document.getElementById('myTeam_Team')
     const ticket_div = document.getElementById('myTeam_Team_Tickets')
+
+    document.getElementById('myTeam_create_worker').style.display = "none"
+
     loadTeam(team_div)
     loadTeamTickets(ticket_div, active_user, active_user.leader_of ? active_user.leader_of : active_user.member_of)
 }
 
 function loadTeam(parent){
+
+    parent.innerHTML = ''
+
     fetch('/myteam/team')
         .then(response => response.json())
         .then(response => {
@@ -27,6 +34,8 @@ function loadTeam(parent){
                 displayMessage(response.message, response.error)
                 return
             }
+            const active_user = JSON.parse(document.getElementById('active_user').textContent)
+
             if (response.leader.length !== 0){
                 createHTML(parent,"h2", ['myTeam_h2'],'Team Leader')
 
@@ -36,6 +45,10 @@ function loadTeam(parent){
                 response.leader.forEach(leader => {
                 createHTMLForWorker('leader',leader,leader_parent)
                 })
+
+                if(active_user.permission === "Lead_Worker") {
+                    createHTMLAddWorker(leader_parent, "Lead_Worker")
+                }
             }
 
             if (response.member.length !== 0){
@@ -47,11 +60,16 @@ function loadTeam(parent){
                 response.member.forEach(member =>{
                     createHTMLForWorker('worker', member, worker_parent)
                 })
+
+                if(active_user.permission === "Lead_Worker") {
+                    createHTMLAddWorker(worker_parent, "Worker")
+                }
             }
         })
 }
 
 function loadTeamTickets(parent, user, team){
+     parent.innerHTML = ''
      createHTML(parent, "h2", [],`Tickets of Team ${team}`)
      fetch('/myteam/tickets')
         .then(response => response.json())
@@ -71,6 +89,22 @@ function loadTeamTickets(parent, user, team){
         })
 }
 
+function loadCreateWorker(permission){
+    document.getElementById('myTeam_Team').innerHTML = ""
+    document.getElementById('myTeam_Team_Tickets').innerHTML = ""
+
+    document.getElementById('back_btn').addEventListener('click', () => loadMyTeam())
+
+    const heading = document.getElementById('myTeam_create_worker_heading')
+
+    const permission_name = permission === 'Lead_Worker' ? "Team Leader" : "Worker"
+    heading.innerHTML = `Create a new ${permission_name}`
+
+    document.getElementById(permission).checked = true
+
+    document.getElementById('myTeam_create_worker').style.display = "flex"
+}
+
 function createHTMLForWorker(role,user,parent){
 
     const wrapper = createHTML(parent, 'div', [`myTeam_general_wrapper`],'')
@@ -80,4 +114,12 @@ function createHTMLForWorker(role,user,parent){
     createHTML(wrapper, 'div', [`myTeam_general_circle`, `myTeam_${role}_circle`], user.username.substring(0,3))
 
     createHTML(wrapper, 'div', [`myTeam_general_name`, `myTeam_${role}_name`], user.username)
+}
+
+function createHTMLAddWorker(parent, permission){
+    const wrapper = createHTML(parent, 'div', [`myTeam_general_wrapper`],'')
+    wrapper.addEventListener('click', () => { loadCreateWorker(permission) })
+    createHTML(wrapper, 'div', [`myTeam_general_circle`], "+")
+
+    createHTML(wrapper, 'div', [`myTeam_general_name`], 'Add')
 }

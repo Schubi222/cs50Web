@@ -1,6 +1,7 @@
 .myTeam_general_all_wrapper{
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
     justify-content: center;
     align-content: center;
     align-items: center;
@@ -47,4 +48,34 @@
     font-weight: bold;
     padding-top: 5px;
     transition: all .3s ease-in-out;
+}
+#myTeam_create_worker{
+    display: none;
+}
+#myTeam_create_worker{
+    align-items: center;
+    flex-direction: column;
+    width: 380px;
+}
+.myTeam_create_worker_header{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-bottom: 2px solid lightgray;
+
+}
+#myTeam_create_worker_heading{
+    justify-self: center;
+    text-align: center;
+    position: relative;
+    margin: 0 auto;
+    left: -16px;
+}
+#back_btn{
+    position: relative;
+    left: 0;
+    font-size: 2rem;
+}
+.form{
+    align-items: center;
 }
