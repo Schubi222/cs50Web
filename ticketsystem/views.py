@@ -250,6 +250,12 @@ def profile(request, username, operation="init"):
 
     user_of_profile = User.objects.get(username=username)
 
+    if request.user.permission == "User" and request.user != user_of_profile:
+        return HttpResponseRedirect(reverse('index'), {
+            'message': PERMISSION_DENIED_MESSAGE,
+            'error': True
+        })
+
     if operation == "init":
         return render(request, 'profile.html', {
             'user_of_profile': user_of_profile.serialize(),

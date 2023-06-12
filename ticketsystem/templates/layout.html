@@ -26,9 +26,9 @@
                     <li class="layout_menu_li" data-url="tickets">Tickets</li>
                 {% if user.is_authenticated %}
                     <li class="layout_menu_li" data-url="mytickets">My Tickets</li>
-                    <li class="layout_menu_li" data-url="mydashboard">My Dashboard</li>
-                    {% if user.permission == user.Permission.Lead_Worker %}
+                    {% if user.permission == user.Permission.Lead_Worker or user.permission == user.Permission.Worker%}
                         <li class="layout_menu_li" data-url="myteam">My Team</li>
+                        <li class="layout_menu_li" data-url="mydashboard">My Dashboard</li>
                     {% endif %}
                     <li class="layout_menu_li" data-url="archive">Archive</li>
                     <li class="layout_menu_li" data-url="logout">Logout</li>
