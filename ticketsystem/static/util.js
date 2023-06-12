@@ -27,7 +27,8 @@ export function displayMessage(content, error){
  * @param parent parent HTML element
  * @param model the DB entry that contains all info
  * @param type what it is (will be represented in the specific classes and might be needed for additional configs)
- * @param additional optional | if there is any additional data that is needed
+ * having 'ticket' as part of the name will have an effect on the outcome.
+ * @param additional optional | if there is any additional data that is needed; 0: ages 1: active user
  */
 export function listedHTMLContainer(parent, model, type, additional=[]){
     const author_special = ['my_ticket', 'notification']

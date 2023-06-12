@@ -120,8 +120,42 @@ def my_team(request, operation="init"):
             })
 
 
+# TODO: Handle message; user.permission checken
 def create_worker(request):
-    pass
+    if not request.user or request.user.permission != User.Permission.Lead_Worker:
+        return render(request, "myteam.html", {
+            'message': PERMISSION_DENIED_MESSAGE
+        })
+    if request.method == "POST":
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+        confirmation = request.POST['confirmation']
+        permission = request.POST['permission']
+
+        if password != confirmation:
+            return render(request, "myteam.html", {
+                "message": "Passwords must match."
+            })
+
+        try:
+            user = User.objects.create_user(username, email, password)
+            user.permission = permission
+
+            # add to the team of creator
+            if permission == User.Permission.Lead_Worker:
+                user.leader_of = request.user.leader_of
+            else:
+                user.member_of = request.user.leader_of
+
+            user.save()
+        except IntegrityError:
+            return render(request, "myteam.html", {
+                "message": "Username already taken."
+            })
+        return HttpResponseRedirect(reverse("myteam"))
+    else:
+        return render(request, "myteam.html")
 
 
 def change_permissions(request):
@@ -207,8 +241,44 @@ def my_dashboard(request, operation='init'):
     })
 
 
-def profile(request, username):
-    pass
+def profile(request, username, operation="init"):
+    if not User.objects.filter(username=username).exists():
+        return HttpResponseRedirect(reverse('index'), {
+            'message': "This user does not exist",
+            'error': True
+        })
+
+    user_of_profile = User.objects.get(username=username)
+
+    if operation == "init":
+        return render(request, 'profile.html', {
+            'user_of_profile': user_of_profile.serialize(),
+        })
+
+    elif operation == "infos":
+        tickets = Ticket.objects.filter(owner=user_of_profile)
+        assigned_tickets = Ticket.objects.filter(assigned_to=user_of_profile)
+
+        return JsonResponse({
+            'ticket_count': len(tickets),
+            'assigned_ticket_count': len(assigned_tickets),
+        })
+    elif operation == "ticket":
+        tickets = Ticket.objects.filter(owner=user_of_profile)
+        tickets, ages = prep_tickets(tickets)
+
+        return JsonResponse({
+            'tickets': [elem.serialize() for elem in tickets] if tickets else [],
+            'ages': ages,
+        })
+    elif operation == "assigned":
+        assigned_tickets = Ticket.objects.filter(assigned_to=user_of_profile)
+        assigned_tickets, assigned_ages = prep_tickets(assigned_tickets)
+
+        return JsonResponse({
+            'tickets': [elem.serialize() for elem in assigned_tickets] if assigned_tickets else [],
+            'ages': assigned_ages,
+        })
 
 
 def archive(request, operation="init"):

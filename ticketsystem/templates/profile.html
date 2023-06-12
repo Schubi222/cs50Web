@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}Profile{% endblock %}
+
+{% block script %}
+    <link rel="stylesheet" href="{% static 'container.css' %}">
+    <link rel="stylesheet" href="{% static 'noSelect.css' %}">
+    <link rel="stylesheet" href="{% static 'profile.css' %}">
+    <link rel="stylesheet" href="{% static 'myTeam.css' %}">
+    <script type="module" src="{% static 'profile.js' %}"></script>
+    <script type="module" src="{% static 'util.js' %}"></script>
+    {{ user_of_profile|json_script:"user_of_profile" }}
+{% endblock %}
+
+{% block body %}
+    <div id="profile_wrapper">
+        <div id="profile_header_wrapper">
+            <div class="myTeam_general_circle profile_circle" id="profile_circle"></div>
+            <div class="profile_header_username">{{ user_of_profile.username }}</div>
+            <div id="profile_header_role">Role: {{ user_of_profile.permission }}</div>
+            <div id="profile_header_ticket_count">Number of open tickets: </div>
+        </div>
+    <div id="profile_created_tickets" class="container">
+        <h2 class="profile_tickets_heading">{{ user_of_profile.username }}'s Tickets</h2>
+    </div>
+    <div id="profile_assigned_tickets" class="container"></div>
+    </div>
+{% endblock %}

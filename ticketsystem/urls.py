@@ -19,6 +19,7 @@ urlpatterns = [
     path("myteam/<str:operation>", views.my_team, name="myteam"),
 
     path("profile/<str:username>", views.profile, name="profile"),
+    path("profile/<str:username>/<str:operation>", views.profile, name="profile"),
 
     path("ticket/<int:id>", views.ticket, name="ticket"),
     path("ticket/<int:id>/close", views.close_ticket, name="closeticket"),

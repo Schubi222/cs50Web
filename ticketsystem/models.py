@@ -21,7 +21,7 @@ class User(AbstractUser):
         Worker = "Worker"
         Lead_Worker = "Lead_Worker"
 
-    permission = models.CharField(choices=Permission.choices, max_length=16)
+    permission = models.CharField(choices=Permission.choices, max_length=16, default=Permission.User)
     leader_of = models.ForeignKey("Team", blank=True, null=True, on_delete=models.SET_NULL, related_name="leaders")
     member_of = models.ForeignKey("Team", blank=True, null=True, on_delete=models.SET_NULL, related_name="members")
 
