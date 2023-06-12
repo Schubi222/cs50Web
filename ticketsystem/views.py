@@ -256,7 +256,7 @@ def profile(request, username, operation="init"):
         })
 
     elif operation == "infos":
-        tickets = Ticket.objects.filter(owner=user_of_profile)
+        tickets = Ticket.objects.filter(owner=user_of_profile, closed=False)
         assigned_tickets = Ticket.objects.filter(assigned_to=user_of_profile)
 
         return JsonResponse({
@@ -264,7 +264,7 @@ def profile(request, username, operation="init"):
             'assigned_ticket_count': len(assigned_tickets),
         })
     elif operation == "ticket":
-        tickets = Ticket.objects.filter(owner=user_of_profile)
+        tickets = Ticket.objects.filter(owner=user_of_profile, closed=False)
         tickets, ages = prep_tickets(tickets)
 
         return JsonResponse({
@@ -272,7 +272,7 @@ def profile(request, username, operation="init"):
             'ages': ages,
         })
     elif operation == "assigned":
-        assigned_tickets = Ticket.objects.filter(assigned_to=user_of_profile)
+        assigned_tickets = Ticket.objects.filter(assigned_to=user_of_profile, closed=False)
         assigned_tickets, assigned_ages = prep_tickets(assigned_tickets)
 
         return JsonResponse({
