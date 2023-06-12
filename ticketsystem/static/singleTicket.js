@@ -3,8 +3,36 @@ document.addEventListener('DOMContentLoaded', ()=>{
     loadLog()
     document.getElementById('ticket_new_comment_form').addEventListener('submit', () =>{comment()})
     document.getElementById('claim_btn')?.addEventListener('click', () => singleTicketClaim())
+    document.getElementById('reassign_btn')?.addEventListener('click', () => reassignTicket())
     document.getElementById('close_btn')?.addEventListener('click', () => closeTicket())
 })
+// TODO get new assignee
+function reassignTicket(){
+    const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
+    const ticket = JSON.parse(document.getElementById('ticket').textContent)
+    fetch(`/ticket/${ticket.id}/reassign`, {
+        method: 'PUT',
+        headers: {'X-CSRFToken': csrf},
+        body: JSON.stringify({
+            'assign_to': 'gio'
+        })
+    })
+        .then(response => response.json())
+        .then(response => {
+            if (response.error) {
+                displayMessage(response.message, response.error)
+            } else {
+                //TODO:Check ob message überhaupt auftaucht
+                displayMessage(response.message, response.error)
+
+                const div = document.getElementById('assigned_to')
+                div.innerHTML = "Assigned to: "
+                const profile_a = createHTML(div, 'a', ['ticket_assigned_to'],'gio')
+                profile_a.href = window.location.origin+`/profile/${"gio"}`
+
+            }
+        })
+}
 
 function closeTicket() {
     const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value

@@ -22,17 +22,20 @@
             {% if not ticket.assigned_to and user.permission == user.Permission.Lead_Worker or user.permission == user.Permission.Worker %}
                 <button id="claim_btn" class="single_ticket_ticket_claim btn">Claim</button>
             {% endif %}
+            {% if user.permission == user.Permission.Lead_Worker %}
+                <button id="reassign_btn" class="btn">Reassign</button>
+            {% endif %}
             {% if ticket.assigned_to == user.username or ticket.owner == user.username or user.permission == user.Permission.Lead_Worker %}
                 <button id="close_btn" class="single_ticket_ticket_close btn">Close Ticket</button>
             {% endif %}
         {% endif %}
             <div class="ticket_head">
-                <div class="ticket_author">Created by: <a href="#" class="ticket_author_link">{{ ticket.owner }}</a></div>
+                <div class="ticket_author">Created by: <a href="{% url 'profile' ticket.owner%}" class="ticket_author_link">{{ ticket.owner }}</a></div>
                 <div class="ticket_assigned_to" id="assigned_to">Assigned to:
                     {% if ticket.assigned_to %}
-                    <a href="#" class="ticket_assigned_to">{{ ticket.assigned_to }}</a>
+                        <a href="{% url 'profile' ticket.assigned_to%}" class="ticket_assigned_to">{{ ticket.assigned_to }}</a>
                     {% else %}
-                    Not yet assigned
+                        Not yet assigned
                     {% endif %}
                 </div>
                 <div class="ticket_age">Age: {{ age }} Days</div>

@@ -23,6 +23,7 @@ urlpatterns = [
 
     path("ticket/<int:id>", views.ticket, name="ticket"),
     path("ticket/<int:id>/close", views.close_ticket, name="closeticket"),
+    path("ticket/<int:id>/reassign", views.reassign_ticket, name="reassignticket"),
 
     path("getalltickets", views.get_all_tickets, name="getalltickets"),
 

@@ -61,6 +61,15 @@ def prep_tickets(tickets):
     return tickets, ages
 
 
+def permission_check(user, permission):
+    if user.permission != permission:
+        return HttpResponseRedirect(reverse('index'), {
+            'message': PERMISSION_DENIED_MESSAGE,
+            'error': True
+        })
+    return False
+
+
 def index(request):
     return render(request, "index.html")
 
@@ -307,6 +316,32 @@ def archive(request, operation="init"):
     else:
         return render(request,'archive.html')
 
+
+def reassign_ticket(request, id):
+    user = request.user
+
+    if user.permission != User.Permission.Lead_Worker:
+        return HttpResponseRedirect(reverse('index'), {
+            'message': PERMISSION_DENIED_MESSAGE,
+            'error': True
+        })
+
+    if not Ticket.objects.filter(id=id).exists():
+        return JsonResponse({
+            "message": "Ticket does not exist!",
+            'error': True
+        })
+
+    ticket = Ticket.objects.get(id=id)
+    data = json.loads(request.body)
+    assign_to = User.objects.get(username=data['assign_to'])
+    ticket.assigned_to = assign_to
+    ticket.save()
+
+    return JsonResponse({
+        "message": f"Assigned to {data['assign_to']}",
+        'error': False
+    })
 
 def close_ticket(request, id):
     user = request.user
