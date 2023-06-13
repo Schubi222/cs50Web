@@ -3,35 +3,107 @@ document.addEventListener('DOMContentLoaded', ()=>{
     loadLog()
     document.getElementById('ticket_new_comment_form').addEventListener('submit', () =>{comment()})
     document.getElementById('claim_btn')?.addEventListener('click', () => singleTicketClaim())
-    document.getElementById('reassign_btn')?.addEventListener('click', () => reassignTicket())
+    document.getElementById('reassign_btn')?.addEventListener('click', () => openReassignSelect(),
+        { once: true })
     document.getElementById('close_btn')?.addEventListener('click', () => closeTicket())
 })
-// TODO get new assignee
+
+
+function openReassignSelect (){
+    document.getElementById('assigned_span').style.display="none"
+
+    const select_elem = document.getElementById('assign_select');
+    select_elem.style.display="unset"
+    if (select_elem.options.length !== 0 )
+    {
+        for (let i = 0; i < select_elem.length; i++) {
+            select_elem[i].remove()
+        }
+    }
+
+    fetch(`${window.location.origin}/myteam/team`)
+        .then(response => response.json())
+        .then(response => {
+            if (response.error) {
+                displayMessage(response.message)
+            }
+            else{
+                select_elem.add(new Option('unassign','unassign'));
+
+                response.leader.forEach(leader => {
+                    select_elem.add(new Option(leader.username,leader.username))
+                })
+                response.member.forEach(member => {
+                    select_elem.add(new Option(member.username,member.username))
+                })
+            }
+        })
+
+    document.getElementById('reassign_btn')?.addEventListener('click', () => reassignTicket(),
+        { once: true })
+}
+
 function reassignTicket(){
     const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
     const ticket = JSON.parse(document.getElementById('ticket').textContent)
+    const select = document.getElementById('assign_select')
+    const user = select.value
+
     fetch(`/ticket/${ticket.id}/reassign`, {
         method: 'PUT',
         headers: {'X-CSRFToken': csrf},
         body: JSON.stringify({
-            'assign_to': 'gio'
+            'assign_to': user
         })
     })
         .then(response => response.json())
         .then(response => {
+            document.getElementById('assigned_span').style.display="unset"
             if (response.error) {
                 displayMessage(response.message, response.error)
-            } else {
-                //TODO:Check ob message überhaupt auftaucht
-                displayMessage(response.message, response.error)
-
-                const div = document.getElementById('assigned_to')
-                div.innerHTML = "Assigned to: "
-                const profile_a = createHTML(div, 'a', ['ticket_assigned_to'],'gio')
-                profile_a.href = window.location.origin+`/profile/${"gio"}`
-
+                if(ticket.assigned_to){
+                    const a = document.getElementById('ticket_assigned_to')
+                    a.innerHTML=ticket.assigned_to
+                    a.href = window.location.origin+`/profile/${ticket.assigned_to}`
+                }
+                else{
+                    document.getElementById('assigned_span').innerHTML = `Not yet assigned`
+                }
+                 select.style.display="none"
+                document.getElementById('reassign_btn')?.addEventListener('click',
+                    () => openReassignSelect(), { once: true })
+                return;
             }
+
+            //TODO:Check ob message überhaupt auftaucht
+            displayMessage(response.message, response.error)
+            if(user !== "unassign"){
+                document.getElementById('assigned_span').style.display="unset"
+                document.getElementById('assigned_span').innerHTML=
+                `<a href="${window.location.origin}/profile/${user}" className="ticket_assigned_to">${user}</a>`
+
+                document.getElementById('reassign_btn').style.display = "unset"
+                select.style.display="none"
+                document.getElementById('reassign_btn')?.addEventListener('click',
+                    () => openReassignSelect(), { once: true })
+                return
+            }
+            else{
+                document.getElementById('assigned_span').innerHTML = `Not yet assigned`
+
+                document.getElementById('reassign_btn').remove()
+
+                const btn = createHTML(document.getElementById('btn_span'),'button',['btn'],
+                    'Claim')
+                btn.id = "claim_btn"
+                btn.addEventListener('click', () => singleTicketClaim())
+            }
+
+            select.style.display="none"
+            document.getElementById('reassign_btn')?.addEventListener('click',
+                () => openReassignSelect(), { once: true })
         })
+
 }
 
 function closeTicket() {
@@ -60,8 +132,14 @@ function singleTicketClaim(){
 
     claimTicket(ticket,document.getElementById('claim_btn'),csrf)
 
-    document.getElementById('assigned_to').innerHTML=
-        `Assigned to: <a href="profile/${user.username}" className="ticket_assigned_to">${user.username}</a>`
+    document.getElementById('assigned_span').innerHTML=
+        `<a href="${window.location.origin}/profile/${user.username}" className="ticket_assigned_to">${user.username}</a>`
+
+    const btn = createHTML(document.getElementById('btn_span'),'button',['btn'],
+        'Reassign')
+
+    btn.id = "reassign_btn"
+    btn.addEventListener('click', () => openReassignSelect(), { once: true })
 
     setTimeout(() => { loadLog()  }, 300);
 }
@@ -119,8 +197,5 @@ function loadLog(){
                         break
                 }
             })
-
         })
-
-
 }

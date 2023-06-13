@@ -59,7 +59,7 @@ export function listedHTMLContainer(parent, model, type, additional=[]){
 
     if (type.includes('ticket'))
     {
-        wrapper.addEventListener('click', () =>{window.location.href=`ticket/${model.id}`})
+        wrapper.addEventListener('click', () =>{window.location.href=`${window.location.origin}/ticket/${model.id}`})
         const status = createHTML(head,'div',[ 'container_ticket_status',`${type}_ticket_status`],model.status)
     }
 
@@ -69,7 +69,7 @@ export function listedHTMLContainer(parent, model, type, additional=[]){
 
 
 export function claimTicket(ticket, btn, csrf){
-    fetch('/claim', {
+    fetch(`${window.location.origin}/ticket/${ticket.id}/claim`, {
         method: 'PUT',
         headers:{'X-CSRFToken': csrf},
         body: JSON.stringify({

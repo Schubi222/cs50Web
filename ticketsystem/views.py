@@ -331,17 +331,28 @@ def reassign_ticket(request, id):
             "message": "Ticket does not exist!",
             'error': True
         })
+    data = json.loads(request.body)
+    assign_to = data['assign_to']
 
     ticket = Ticket.objects.get(id=id)
-    data = json.loads(request.body)
-    assign_to = User.objects.get(username=data['assign_to'])
-    ticket.assigned_to = assign_to
+
+    ticket.assigned_to = None if assign_to == "unassign" else User.objects.get(username=assign_to)
     ticket.save()
+
+    entry = LogEntry()
+    if assign_to == "unassign":
+        entry.content = f"Ticket({ticket.id}) has been removed from previous worker"
+    else:
+        entry.content = f"Ticket({ticket.id}) has been assigned to {ticket.assigned_to.username}"
+    entry.ticket = ticket
+    entry.type = LogEntry.Type.Notification
+    entry.save()
 
     return JsonResponse({
         "message": f"Assigned to {data['assign_to']}",
         'error': False
     })
+
 
 def close_ticket(request, id):
     user = request.user
@@ -376,7 +387,7 @@ def close_ticket(request, id):
     })
 
 
-def claim_ticket(request):
+def claim_ticket(request, id):
     active_user = request.user
 
     if active_user.is_anonymous:
@@ -395,8 +406,7 @@ def claim_ticket(request):
 
     data = json.loads(request.body)
 
-    ticket = data.get('ticket')
-    ticket = Ticket.objects.get(id=ticket['id'])
+    ticket = Ticket.objects.get(id=id)
 
     if ticket.assigned_to and user.permission != User.Permission.Lead_Worker:
         return JsonResponse({

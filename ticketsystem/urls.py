@@ -24,6 +24,7 @@ urlpatterns = [
     path("ticket/<int:id>", views.ticket, name="ticket"),
     path("ticket/<int:id>/close", views.close_ticket, name="closeticket"),
     path("ticket/<int:id>/reassign", views.reassign_ticket, name="reassignticket"),
+    path("ticket/<int:id>/claim", views.claim_ticket, name="claimticket"),
 
     path("getalltickets", views.get_all_tickets, name="getalltickets"),
 
@@ -33,7 +34,6 @@ urlpatterns = [
 
     path("getallentries/<int:ticket_id>", views.get_all_entries_for_ticket, name="getallentries"),
 
-    path("claim", views.claim_ticket, name="claim"),
 
     path("archive", views.archive, name="archive"),
     path("archive/<str:operation>", views.archive, name="archive"),
