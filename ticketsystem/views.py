@@ -13,9 +13,6 @@ import datetime
 
 from django.contrib.auth.decorators import login_required
 
-#TODO: For testing only
-from django.views.decorators.csrf import csrf_exempt
-
 from .models import User, Ticket, LogEntry, Team
 
 PERMISSION_DENIED_MESSAGE = "You do not have the permission to do that!"
@@ -39,7 +36,6 @@ def form_standard_check(request, to_be_created):
 
     user = request.user
     if user.is_anonymous:
-        # TODO: Notification
         return JsonResponse({
             "message": "You have to be logged in to do that!",
             'error': True
@@ -61,23 +57,17 @@ def prep_tickets(tickets):
     return tickets, ages
 
 
-def permission_check(user, permission):
-    if user.permission != permission:
-        return HttpResponseRedirect(reverse('index'), {
-            'message': PERMISSION_DENIED_MESSAGE,
-            'error': True
-        })
-    return False
-
-
+@login_required()
 def index(request):
     return render(request, "index.html")
 
 
+@login_required()
 def my_tickets(request):
     return render(request, "myticket.html")
 
 
+@login_required()
 def my_team(request, operation="init"):
 
     if operation == "init":
@@ -99,8 +89,8 @@ def my_team(request, operation="init"):
     if operation == "team":
 
         return JsonResponse({
-            'member': [member.serialize() for member in member],
-            'leader': [leader.serialize() for leader in leader],
+            'member': [member.serialize() for member in member] if member else [],
+            'leader': [leader.serialize() for leader in leader] if leader else [],
             'error': False
         })
 
@@ -117,7 +107,7 @@ def my_team(request, operation="init"):
         tickets = tickets.filter(closed=False).all()
 
         return JsonResponse({
-            'tickets': [ticket.serialize() for ticket in tickets],
+            'tickets': [ticket.serialize() for ticket in tickets] if tickets else [],
             'ages': ages,
             'error': False
         })
@@ -129,12 +119,16 @@ def my_team(request, operation="init"):
             })
 
 
-# TODO: Handle message; user.permission checken
+# adapted from register function see source at login_view!
+@login_required()
+# TODO: Handle message;
 def create_worker(request):
     if not request.user or request.user.permission != User.Permission.Lead_Worker:
         return render(request, "myteam.html", {
-            'message': PERMISSION_DENIED_MESSAGE
+            'message': PERMISSION_DENIED_MESSAGE,
+            'error': True,
         })
+
     if request.method == "POST":
         username = request.POST['username']
         email = request.POST['email']
@@ -149,9 +143,14 @@ def create_worker(request):
 
         try:
             user = User.objects.create_user(username, email, password)
+            if permission != User.Permission.Lead_Worker and permission != User.Permission.Worker:
+                return render(request, "myteam.html", {
+                    "message": "Something went wrong while assigning the permission!",
+                    'error': True,
+                })
+
             user.permission = permission
 
-            # add to the team of creator
             if permission == User.Permission.Lead_Worker:
                 user.leader_of = request.user.leader_of
             else:
@@ -160,18 +159,15 @@ def create_worker(request):
             user.save()
         except IntegrityError:
             return render(request, "myteam.html", {
-                "message": "Username already taken."
+                "message": "Username already taken.",
+                'error': True,
             })
         return HttpResponseRedirect(reverse("myteam"))
     else:
         return render(request, "myteam.html")
 
 
-def change_permissions(request):
-    pass
-
-
-@login_required
+@login_required()
 def my_tickets_get(request):
     user = request.user
     user = User.objects.get(username=user)
@@ -181,12 +177,12 @@ def my_tickets_get(request):
 
     if user.permission == User.Permission.Lead_Worker or user.permission == User.Permission.Worker:
         worker_tickets = Ticket.objects.filter(assigned_to=user).all()
+        worker_tickets = worker_tickets.filter(closed=False).all()
+
+    user_tickets = user_tickets.filter(closed=False).all()
 
     user_tickets, user_ages = prep_tickets(user_tickets)
     worker_tickets, worker_ages = prep_tickets(worker_tickets)
-
-    user_tickets = user_tickets.filter(closed=False).all()
-    worker_tickets = worker_tickets.filter(closed=False).all()
 
     return JsonResponse({'user_tickets': {'tickets': [elem.serialize() for elem in user_tickets] if user_tickets else None,'ages': user_ages},
                         'worker_tickets': {'tickets': [elem.serialize() for elem in worker_tickets] if worker_tickets else None, 'ages': worker_ages}
@@ -220,11 +216,20 @@ def dashboard_get_tickets_last_30_days(user, closed, team=None, all_teams=False,
     return tickets_in_time if closed else tickets
 
 
-# TODO: Potential für eigene angaben z.b. wie viele tage
+@login_required()
 def my_dashboard(request, operation='init'):
+    user = request.user
+    user = User.objects.get(username=user)
+
+    if user.permission != User.Permission.Lead_Worker and user.permission != User.Permission.Worker:
+        return HttpResponseRedirect(reverse('index'), {
+            'message': PERMISSION_DENIED_MESSAGE,
+            'error': True
+        })
+
     if operation == 'init':
         return render(request, "dashboard.html")
-    user = User.objects.get(username=request.user)
+
     team = user.leader_of if user.leader_of else user.member_of
 
     tickets_assigned_to_user_open = dashboard_get_tickets_last_30_days(user, False)
@@ -250,6 +255,8 @@ def my_dashboard(request, operation='init'):
     })
 
 
+# TODO: statt User nicht ansehen lassen nur eigene tickets sehen
+@login_required()
 def profile(request, username, operation="init"):
     if not User.objects.filter(username=username).exists():
         return HttpResponseRedirect(reverse('index'), {
@@ -296,11 +303,12 @@ def profile(request, username, operation="init"):
         })
 
 
+@login_required()
 def archive(request, operation="init"):
     if operation == "get":
         user = User.objects.get(username=request.user)
 
-        tickets = []
+        tickets = Ticket.objects.none()
 
         if user.permission == User.Permission.User:
             tickets = Ticket.objects.filter(owner=user)
@@ -308,15 +316,16 @@ def archive(request, operation="init"):
         else:
             tickets = Ticket.objects.all()
 
-        tickets, ages = prep_tickets(tickets)
         tickets = tickets.filter(closed=True).all()
+        tickets, ages = prep_tickets(tickets)
 
-        return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets],
+        return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets] if tickets else [],
                              'age': ages}, safe=False)
     else:
         return render(request,'archive.html')
 
 
+@login_required()
 def reassign_ticket(request, id):
     user = request.user
 
@@ -354,6 +363,7 @@ def reassign_ticket(request, id):
     })
 
 
+@login_required()
 def close_ticket(request, id):
     user = request.user
     user = User.objects.get(username=user)
@@ -387,6 +397,7 @@ def close_ticket(request, id):
     })
 
 
+@login_required()
 def claim_ticket(request, id):
     active_user = request.user
 
@@ -430,6 +441,7 @@ def claim_ticket(request, id):
     })
 
 
+@login_required()
 def ticket(request, id):
 
     user = request.user
@@ -452,22 +464,28 @@ def ticket(request, id):
     })
 
 
+@login_required()
 def get_all_tickets(request):
     tickets = Ticket.objects.all()
     tickets = tickets.filter(closed=False).all()
+
+    if request.user.permission == User.Permission.User:
+        tickets = tickets.filter(owner=request.user)
+
     tickets, ages = prep_tickets(tickets)
 
     return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets] if tickets else [], 'age': ages}, safe=False)
 
 
 # TODO: Maybe error ahndling
-@login_required
+@login_required()
 def get_all_entries_for_ticket(request, ticket_id):
     logs = Ticket.objects.get(id=ticket_id).log_entries
     logs = logs.order_by('-timestamp').all()
     return JsonResponse({'entries': [entry.serialize() for entry in logs]}, safe=False)
 
 
+@login_required()
 def new_comment(request):
 
     validate = form_standard_check(request, "comment")
@@ -500,7 +518,7 @@ def new_comment(request):
 
 # TODO: Nicht SPA redirect ersetzen durch js verhalten
 # TODO: Remove age + ticket if not needed
-@login_required
+@login_required()
 def new_ticket(request):
     validate = form_standard_check(request, "ticket")
     if validate:
@@ -523,7 +541,7 @@ def new_ticket(request):
     },  safe=False)
 
 
-# Login/Logout/Register copied from Assignment 4
+# Login/Logout/Register copied from Assignment 4 and slightly adapted
 def login_view(request):
     if request.method == "POST":
 
@@ -546,7 +564,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(reverse("login"))
 
 
 def register(request):

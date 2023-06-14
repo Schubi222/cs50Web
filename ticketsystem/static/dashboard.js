@@ -1,21 +1,18 @@
+import {displayMessage} from "./util.js";
+
 document.addEventListener("DOMContentLoaded", ()=>{
 
     loadDashboard()
 })
-/*
-*   [
-      ['Mushrooms', 3],
-      ['Onions', 1],
-      ['Olives', 1],
-      ['Zucchini', 1],
-      ['Pepperoni', 2]
-    ]
-*
-* */
+
 function loadDashboard(){
     fetch('/mydashboard/get')
         .then(response => response.json())
         .then(response => {
+            if (response.error){
+                displayMessage(response.message,response.error)
+                return
+            }
             const keys = Object.keys(response)
             const values = Object.values(response)
 
