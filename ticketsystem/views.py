@@ -486,6 +486,7 @@ def new_comment(request):
     entry = LogEntry()
     entry.owner = request.user
     entry.content = data.get('content')
+    entry.image = data.get('image')
     entry.type = 'Comment'
     entry.ticket = Ticket.objects.get(id=ticket_id)
     entry.save()
@@ -499,7 +500,6 @@ def new_comment(request):
 
 # TODO: Nicht SPA redirect ersetzen durch js verhalten
 # TODO: Remove age + ticket if not needed
-@csrf_exempt
 @login_required
 def new_ticket(request):
     validate = form_standard_check(request, "ticket")
@@ -511,6 +511,7 @@ def new_ticket(request):
     newticket = Ticket()
     newticket.owner = request.user
     newticket.content = data.get('content')
+    newticket.image = data.get('image')
     newticket.status = 'New'
     newticket.save()
     age = calc_age(newticket.timestamp)

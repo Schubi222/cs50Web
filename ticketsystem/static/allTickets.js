@@ -50,14 +50,20 @@ function createNewTicket(){
     }
     textarea.value = ''
     const csrf = form.elements['csrfmiddlewaretoken'].value
-    const imgs = document.getElementById('newTicket_Image')
+    const img_html = document.getElementById('newTicket_Image')
+    const img = img_html.value
+    console.log(img_html)
+    console.log(img_html.textContent)
+    console.log(img)
+    img_html.value = ''
 
     fetch('/newticket',{
         method: 'POST',
         headers: {'X-CSRFToken':csrf},
         mode:'same-origin',
         body: JSON.stringify({
-            content: content_
+            content: content_,
+            image: img,
         })
     })
         .then(response =>{response.json()

@@ -76,6 +76,7 @@ class LogEntry(models.Model):
     content = models.CharField(max_length=2048)
     timestamp = models.DateTimeField(auto_now_add=True)
     ticket = models.ForeignKey('Ticket', on_delete=models.CASCADE, related_name='log_entries')
+    image = models.URLField(blank=True, null=True)
 
     class Type(models.TextChoices):
         Comment = "Comment"
@@ -89,5 +90,6 @@ class LogEntry(models.Model):
             "owner": self.owner.username if self.type == "Comment" else "System",
             "content": self.content,
             "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p"),
-            "type": self.type
+            "type": self.type,
+            "image": self.image
         }

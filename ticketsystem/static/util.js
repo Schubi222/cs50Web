@@ -65,6 +65,11 @@ export function listedHTMLContainer(parent, model, type, additional=[]){
 
 
     const body = createHTML(wrapper, 'div', ['container_body',`${type}_body`],model.content)
+    if(type === "comment"){
+
+        const img = createHTML(body, 'img', ['container_img',`${type}_body`],'')
+        img.src = model.image
+    }
 }
 
 

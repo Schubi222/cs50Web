@@ -16,8 +16,9 @@ function openReassignSelect (){
     select_elem.style.display="unset"
     if (select_elem.options.length !== 0 )
     {
-        for (let i = 0; i < select_elem.length; i++) {
-            select_elem[i].remove()
+        const length = select_elem.options.length
+        for (let i = 0; i < length; i++) {
+            select_elem[0].remove()
         }
     }
 
@@ -78,12 +79,15 @@ function reassignTicket(){
             //TODO:Check ob message überhaupt auftaucht
             displayMessage(response.message, response.error)
             if(user !== "unassign"){
+
+                select.style.display="none"
+
                 document.getElementById('assigned_span').style.display="unset"
                 document.getElementById('assigned_span').innerHTML=
                 `<a href="${window.location.origin}/profile/${user}" className="ticket_assigned_to">${user}</a>`
 
                 document.getElementById('reassign_btn').style.display = "unset"
-                select.style.display="none"
+
                 document.getElementById('reassign_btn')?.addEventListener('click',
                     () => openReassignSelect(), { once: true })
                 return
@@ -149,7 +153,11 @@ function comment(){
     const content_ = textarea.value
     textarea.value = ''
     const csrf = form.elements['csrfmiddlewaretoken'].value
-    const imgs = document.getElementById('newTicket_Image')
+
+    const img_html = document.getElementById('ticket_new_comment_image')
+    const img = img_html.value
+    img_html.value = ''
+    
     const ticket_id = form.elements['ticket_id'].value
 
     fetch('/newcomment',{
@@ -158,7 +166,8 @@ function comment(){
         mode:'same-origin',
         body: JSON.stringify({
             content: content_,
-            ticket: ticket_id
+            ticket: ticket_id,
+            image: img
         })
     })
         .then(response =>response.json())
