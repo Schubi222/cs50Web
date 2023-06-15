@@ -14,12 +14,15 @@
 {% endblock %}
 
 {% block body %}
+    {% if user.permission == 'Lead_Worker' %}
+        <button id="myTeam_new_team">New Team</button>
+    {% endif %}
     <div id="myTeam_Team"></div>
     <div id="myTeam_Team_Tickets" class="container"></div>
-    <div id="myTeam_create_worker" class="form_wrapper">
+    <div id="myTeam_create_worker" class="form_wrapper myTeam_form">
         <div class="myTeam_create_worker_header">
-            <div id="back_btn">&larr;</div>
-            <h3 id="myTeam_create_worker_heading"></h3>
+            <div id="back_btn" class="back_btn">&larr;</div>
+            <h3 id="myTeam_create_worker_heading" class="my_team_create_heading"></h3>
         </div>
         <form id="register_form" class="form" action="{% url 'createworker' %}" method="POST">
             {% csrf_token %}
@@ -42,6 +45,19 @@
                 <label for="Worker">Worker</label><br>
             </div>
             <input id="register_submit_btn" type="submit" value="Register">
+        </form>
+    </div>
+    <div id="myTeam_create_team" class="form_wrapper myTeam_form">
+        <div class="myTeam_create_worker_header">
+            <div id="back_btn_team" class="back_btn">&larr;</div>
+            <h3  class="my_team_create_heading">Create a new Team</h3>
+        </div>
+        <form class="form" action="{% url 'createteam' %}" method="POST">
+            {% csrf_token %}
+            <div class="register_form_group">
+                <input class="form_input" autofocus type="text" name="team_name" placeholder="Team name">
+            </div>
+            <input type="submit" value="Create">
         </form>
     </div>
 {% endblock %}

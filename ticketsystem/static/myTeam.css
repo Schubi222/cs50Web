@@ -52,10 +52,11 @@
 #myTeam_create_worker{
     display: none;
 }
-#myTeam_create_worker{
+.myTeam_form{
+    display: flex;
     align-items: center;
     flex-direction: column;
-    width: 380px;
+    width: 380px !important;
 }
 .myTeam_create_worker_header{
     display: flex;
@@ -64,18 +65,21 @@
     border-bottom: 2px solid lightgray;
 
 }
-#myTeam_create_worker_heading{
+.my_team_create_heading{
     justify-self: center;
     text-align: center;
     position: relative;
     margin: 0 auto;
     left: -16px;
 }
-#back_btn{
+.back_btn{
     position: relative;
     left: 0;
     font-size: 2rem;
 }
 .form{
     align-items: center;
+}
+#myTeam_create_team{
+    display: none;
 }

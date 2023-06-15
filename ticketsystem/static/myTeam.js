@@ -1,8 +1,25 @@
 import {createHTML, displayMessage, listedHTMLContainer} from './util.js'
 document.addEventListener('DOMContentLoaded', () =>{
     loadMyTeam()
+    document.getElementById('myTeam_new_team')?.addEventListener('click', () => newTeam())
 })
+function newTeam(){
+    const active_user = JSON.parse(document.getElementById('active_user').textContent)
+    if (active_user.permission !== "Lead_Worker"){
+        displayMessage('You do not have the permission to do that!')
+        return
+    }
+    document.getElementById('myTeam_Team').innerHTML = ""
+    document.getElementById('myTeam_Team_Tickets').innerHTML = ""
+    document.getElementById('myTeam_create_worker').style.display = "none"
+    document.getElementById('myTeam_new_team').style.display = "none"
 
+    document.getElementById('back_btn_team').addEventListener('click', () => loadMyTeam(),
+        { once: true })
+
+
+    document.getElementById('myTeam_create_team').style.display = "flex"
+}
 function loadMyTeam(){
 
     const active_user = JSON.parse(document.getElementById('active_user').textContent)
@@ -15,9 +32,12 @@ function loadMyTeam(){
     const csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
     const team_div = document.getElementById('myTeam_Team')
     const ticket_div = document.getElementById('myTeam_Team_Tickets')
+    team_div.innerHTML = ''
+    ticket_div.innerHTML = ''
 
     document.getElementById('myTeam_create_worker').style.display = "none"
-
+    document.getElementById('myTeam_create_team').style.display = "none"
+    document.getElementById('myTeam_new_team').style.display = "unset"
     loadTeam(team_div)
     loadTeamTickets(ticket_div, active_user, active_user.leader_of ? active_user.leader_of : active_user.member_of)
 }
@@ -36,34 +56,38 @@ function loadTeam(parent){
             }
             const active_user = JSON.parse(document.getElementById('active_user').textContent)
 
-            if (response.leader.length !== 0){
-                createHTML(parent,"h2", ['myTeam_h2'],'Team Leader')
+            createHTML(parent,"h2", ['myTeam_h2'],'Team Leader')
 
-                const leader_parent = createHTML(parent,'div',
+            const leader_parent = createHTML(parent,'div',
                     ['myTeam_general_all_wrapper','myTeam_leader_all_wrapper'],'')
+
+            if (response.leader.length !== 0){
 
                 response.leader.forEach(leader => {
                 createHTMLForWorker('leader',leader,leader_parent)
                 })
 
-                if(active_user.permission === "Lead_Worker") {
-                    createHTMLAddWorker(leader_parent, "Lead_Worker")
-                }
             }
 
-            if (response.member.length !== 0){
-                createHTML(parent,"h2", ['myTeam_h2'],'Team Member')
+            if(active_user.permission === "Lead_Worker") {
+                createHTMLAddWorker(leader_parent, "Lead_Worker")
+            }
 
-                const worker_parent = createHTML(parent,'div',
-                    ['myTeam_general_all_wrapper','myTeam_worker_all_wrapper'],'')
+            createHTML(parent,"h2", ['myTeam_h2'],'Team Member')
+
+            const worker_parent = createHTML(parent,'div',
+            ['myTeam_general_all_wrapper','myTeam_worker_all_wrapper'],'')
+
+            if (response.member.length !== 0){
 
                 response.member.forEach(member =>{
                     createHTMLForWorker('worker', member, worker_parent)
                 })
 
-                if(active_user.permission === "Lead_Worker") {
-                    createHTMLAddWorker(worker_parent, "Worker")
-                }
+            }
+
+            if(active_user.permission === "Lead_Worker") {
+                createHTMLAddWorker(worker_parent, "Worker")
             }
         })
 }
@@ -92,8 +116,11 @@ function loadTeamTickets(parent, user, team){
 function loadCreateWorker(permission){
     document.getElementById('myTeam_Team').innerHTML = ""
     document.getElementById('myTeam_Team_Tickets').innerHTML = ""
+    document.getElementById('myTeam_create_team').style.display = "none"
+    document.getElementById('myTeam_new_team').style.display = "none"
 
-    document.getElementById('back_btn').addEventListener('click', () => loadMyTeam())
+    document.getElementById('back_btn').addEventListener('click', () => loadMyTeam(),
+        { once: true })
 
     const heading = document.getElementById('myTeam_create_worker_heading')
 

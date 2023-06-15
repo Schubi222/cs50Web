@@ -16,7 +16,11 @@ export function createHTML(parent,type, classnames, content){
 }
 
 export function displayMessage(content, error){
-    console.log(content)
+    const message = document.getElementById('message_div')
+    message.innerHTML = content
+    const error_ = JSON.parse(document.getElementById('custom_error').textContent)
+    // error_.innerHTML=error
+    console.log("DM"+content)
 }
 
 

@@ -39,4 +39,5 @@ urlpatterns = [
     path("archive/<str:operation>", views.archive, name="archive"),
 
     path("createworker", views.create_worker, name="createworker"),
+    path("createteam", views.create_team, name="createteam"),
 ]

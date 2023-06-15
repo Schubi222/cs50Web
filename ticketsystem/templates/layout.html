@@ -8,6 +8,7 @@
         <link href="{% static 'layout.css' %}" rel="stylesheet">
         <script type="module" src="{% static 'layout.js' %}"></script>
         {{ request.user.serialize|json_script:"active_user" }}
+        {{ error|json_script:"custom_error" }}
         {% block script %}
 
         {% endblock %}
@@ -43,9 +44,9 @@
         {% endif %}
 
         </div>
-        {% if message %}
-        <div id="message_div">{{ message }}</div>
-        {% endif %}
+
+        <div id="message_div"></div>
+
         <div id="content_wrapper">
             {% block body %}
             {% endblock %}

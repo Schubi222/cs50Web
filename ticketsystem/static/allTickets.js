@@ -37,9 +37,6 @@ function createNewTicket(){
     const csrf = form.elements['csrfmiddlewaretoken'].value
     const img_html = document.getElementById('newTicket_Image')
     const img = img_html.value
-    console.log(img_html)
-    console.log(img_html.textContent)
-    console.log(img)
     img_html.value = ''
 
     fetch('/newticket',{

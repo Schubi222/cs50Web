@@ -103,9 +103,8 @@ def my_team(request, operation="init"):
 
         for member_ in member:
             tickets = tickets | member_.assigned_tickets.all()
-        tickets, ages = prep_tickets(tickets)
-
         tickets = tickets.filter(closed=False).all()
+        tickets, ages = prep_tickets(tickets)
 
         return JsonResponse({
             'tickets': [ticket.serialize() for ticket in tickets] if tickets else [],
@@ -119,6 +118,41 @@ def my_team(request, operation="init"):
             'error': True
             })
 
+
+@login_required()
+def create_team(request):
+
+    if request.method == "POST":
+
+        if not request.user or request.user.permission != User.Permission.Lead_Worker:
+            return render(request, "myteam.html", {
+                'message': PERMISSION_DENIED_MESSAGE,
+                'error': True,
+            })
+        creator = request.user
+
+        if creator.leader_of is not None and len(Team.objects.get(name=creator.leader_of.name).leaders.all()) < 2:
+            return render(request, "myteam.html", {
+                'message': "Make sure that there is at least another leader in your current team!",
+                'error': True,
+            })
+
+        team_name = request.POST['team_name']
+        if Team.objects.filter(name=team_name).exists():
+            return render(request, "myteam.html", {
+                "message": "Teamname already taken.",
+                'error': True,
+            })
+
+        team = Team()
+        team.name = team_name
+        team.save()
+        creator.leader_of = team
+        creator.save()
+
+        return HttpResponseRedirect(reverse("myteam"))
+    else:
+        return render(request, "myteam.html")
 
 # adapted from register function see source at login_view!
 @login_required()

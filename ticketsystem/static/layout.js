@@ -7,8 +7,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
         window.location = `${window.origin}/profile/${user.username}`
     })
     const message = document.getElementById('message_div')
-    if (message) {messageFade(message)}
+    const observer = new MutationObserver(messageFade);
+    const observerOptions = {childList: true,characterData:true, attributes: false, subtree: false};
+    observer.observe(message,observerOptions);
+    if (localStorage.getItem("message_store")){message.innerHTML=localStorage.getItem("message_store")}
+    console.log(message_store)
+    console.log(localStorage.getItem("message_store"))
 })
+let message_store = localStorage.getItem("message_store");
 let open = false
 function layout(){
     const before = document.getElementById('layout_menu_hamburger_before')
@@ -32,8 +38,17 @@ function layout(){
         Array.from(menu_lis).forEach(li => li.classList.add('is_open'))
     }
 }
-function messageFade(){
+function messageFade(error=true){
+    const message = document.getElementById('message_div')
+    console.log(message.innerHTML)
+    localStorage.setItem("message_store", message.innerHTML);
 
+    message.classList.add('message_visible')
+    const error_ = JSON.parse(document.getElementById('custom_error').textContent)
+    console.log(error_)
+
+    setTimeout(() => {  message.classList.remove('message_visible');
+        localStorage.setItem("message_store", null); }, 5000);
 }
 function makeLayoutLinksClickable()
 {

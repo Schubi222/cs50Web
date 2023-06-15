@@ -32,6 +32,11 @@ h2{text-align: center;}
     right: 0;
     margin: 0 auto;
     z-index: 10;
+    visibility: hidden;
+}
+
+.message_visible {
+    visibility: visible !important;
 }
 .layout_menu_div{
     background-color: var(--primary-color);
@@ -95,8 +100,8 @@ h2{text-align: center;}
     border: unset;
     transition: .5s ease-in-out;
     color: transparent;
-
 }
+
 .layout_menu_li:hover{
     background: #121148;
     color: var(--call-to-action) !important;
