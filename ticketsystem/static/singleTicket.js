@@ -73,6 +73,7 @@ function reassignTicket(){
                  select.style.display="none"
                 document.getElementById('reassign_btn')?.addEventListener('click',
                     () => openReassignSelect(), { once: true })
+                loadLog()
                 return;
             }
 
@@ -90,6 +91,8 @@ function reassignTicket(){
 
                 document.getElementById('reassign_btn')?.addEventListener('click',
                     () => openReassignSelect(), { once: true })
+
+                loadLog()
                 return
             }
             else{
@@ -104,6 +107,7 @@ function reassignTicket(){
             }
 
             select.style.display="none"
+            loadLog()
             document.getElementById('reassign_btn')?.addEventListener('click',
                 () => openReassignSelect(), { once: true })
         })

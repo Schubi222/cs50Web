@@ -77,9 +77,7 @@ export function claimTicket(ticket, btn, csrf){
     fetch(`${window.location.origin}/ticket/${ticket.id}/claim`, {
         method: 'PUT',
         headers:{'X-CSRFToken': csrf},
-        body: JSON.stringify({
-            ticket: ticket
-        })
+        body: JSON.stringify({})
     })
         .then(response => response.json())
         .then(response =>{

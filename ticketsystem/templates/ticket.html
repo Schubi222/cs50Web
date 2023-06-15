@@ -23,7 +23,7 @@
                {% if ticket.assigned_to == user.username or ticket.owner == user.username or user.permission == user.Permission.Lead_Worker %}
                     <button id="close_btn" class="single_ticket_ticket_close btn">Close Ticket</button>
                 {% endif %}
-                {% if not ticket.assigned_to and user.permission == user.Permission.Lead_Worker or user.permission == user.Permission.Worker %}
+                {% if not ticket.assigned_to and user.permission == user.Permission.Lead_Worker or not ticket.assigned_to and user.permission == user.Permission.Worker %}
                     <button id="claim_btn" class="single_ticket_ticket_claim btn">Claim</button>
                 {% endif %}
                 {% if user.permission == user.Permission.Lead_Worker and ticket.assigned_to != None %}
@@ -47,8 +47,10 @@
                 <div class="ticket_status" id="ticket_status">Status: {{ ticket.status }}</div>
             </div>
             <div class="ticket_body">{{ ticket.content }}</div>
+            {% if ticket.image %}
+                <div class="ticket_notes"><img src='{{ ticket.image }}' alt="Added Image"></div>
+            {% endif %}
 
-            <div class="ticket_notes"><img src='{{ ticket.image }}' alt="Added Image"></div>
         </div>
 
         <div id="ticket_new_comment" class="form_wrapper">

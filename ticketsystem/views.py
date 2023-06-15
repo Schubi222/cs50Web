@@ -16,6 +16,7 @@ from django.contrib.auth.decorators import login_required
 from .models import User, Ticket, LogEntry, Team
 
 PERMISSION_DENIED_MESSAGE = "You do not have the permission to do that!"
+TICKET_NOT_EXIST_MESSAGE = "Ticket does not exist!"
 
 
 # Helper Functions
@@ -26,11 +27,11 @@ def calc_age(date):
     return delta.days if delta.days else 0
 
 
-# Everything but implying that something went wrong and the result should be returned
+# Every return value other than None implying that something went wrong and the result should be returned
 def form_standard_check(request, to_be_created):
     if request.method != 'POST':
         return JsonResponse({
-            "message": f"Something went wrong while leaving a {to_be_created}!",
+            "message": f"Something went wrong while creating a {to_be_created}!",
             'error': True
         })
 
@@ -255,7 +256,6 @@ def my_dashboard(request, operation='init'):
     })
 
 
-# TODO: statt User nicht ansehen lassen nur eigene tickets sehen
 @login_required()
 def profile(request, username, operation="init"):
     if not User.objects.filter(username=username).exists():
@@ -265,12 +265,6 @@ def profile(request, username, operation="init"):
         })
 
     user_of_profile = User.objects.get(username=username)
-
-    if request.user.permission == "User" and request.user != user_of_profile:
-        return HttpResponseRedirect(reverse('index'), {
-            'message': PERMISSION_DENIED_MESSAGE,
-            'error': True
-        })
 
     if operation == "init":
         return render(request, 'profile.html', {
@@ -287,6 +281,10 @@ def profile(request, username, operation="init"):
         })
     elif operation == "ticket":
         tickets = Ticket.objects.filter(owner=user_of_profile, closed=False)
+
+        if request.user.permission == "User" and request.user != user_of_profile:
+            tickets = tickets.filter(owner=request.user)
+
         tickets, ages = prep_tickets(tickets)
 
         return JsonResponse({
@@ -295,6 +293,10 @@ def profile(request, username, operation="init"):
         })
     elif operation == "assigned":
         assigned_tickets = Ticket.objects.filter(assigned_to=user_of_profile, closed=False)
+
+        if request.user.permission == "User" and request.user != user_of_profile:
+            assigned_tickets = assigned_tickets.filter(owner=request.user)
+
         assigned_tickets, assigned_ages = prep_tickets(assigned_tickets)
 
         return JsonResponse({
@@ -308,8 +310,6 @@ def archive(request, operation="init"):
     if operation == "get":
         user = User.objects.get(username=request.user)
 
-        tickets = Ticket.objects.none()
-
         if user.permission == User.Permission.User:
             tickets = Ticket.objects.filter(owner=user)
 
@@ -322,7 +322,7 @@ def archive(request, operation="init"):
         return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets] if tickets else [],
                              'age': ages}, safe=False)
     else:
-        return render(request,'archive.html')
+        return render(request, 'archive.html')
 
 
 @login_required()
@@ -337,9 +337,10 @@ def reassign_ticket(request, id):
 
     if not Ticket.objects.filter(id=id).exists():
         return JsonResponse({
-            "message": "Ticket does not exist!",
+            "message": TICKET_NOT_EXIST_MESSAGE,
             'error': True
         })
+
     data = json.loads(request.body)
     assign_to = data['assign_to']
 
@@ -349,10 +350,12 @@ def reassign_ticket(request, id):
     ticket.save()
 
     entry = LogEntry()
+
     if assign_to == "unassign":
         entry.content = f"Ticket({ticket.id}) has been removed from previous worker"
     else:
         entry.content = f"Ticket({ticket.id}) has been assigned to {ticket.assigned_to.username}"
+
     entry.ticket = ticket
     entry.type = LogEntry.Type.Notification
     entry.save()
@@ -367,16 +370,18 @@ def reassign_ticket(request, id):
 def close_ticket(request, id):
     user = request.user
     user = User.objects.get(username=user)
-    ticket = Ticket.objects.get(id=id)
 
-    if not ticket:
-        return JsonResponse({
-            "message": "Ticket does not exist!",
+    if not Ticket.objects.filter(id=id).exists():
+        return HttpResponseRedirect(reverse('index'), {
+            "message": TICKET_NOT_EXIST_MESSAGE,
             'error': True
         })
+
+    ticket = Ticket.objects.get(id=id)
+
     if user.permission != User.Permission.Lead_Worker and user != ticket.owner and user != ticket.assigned_to:
-        return JsonResponse({
-            "message": PERMISSION_DENIED_MESSAGE,
+        return HttpResponseRedirect(reverse('index'), {
+            'message': PERMISSION_DENIED_MESSAGE,
             'error': True
         })
 
@@ -399,23 +404,19 @@ def close_ticket(request, id):
 
 @login_required()
 def claim_ticket(request, id):
-    active_user = request.user
-
-    if active_user.is_anonymous:
-        return JsonResponse({
-            "message": "You have to be logged in to do that!",
-            'error': True
-        })
-
-    user = User.objects.get(username=active_user)
+    user = request.user
 
     if user.permission != User.Permission.Lead_Worker and user.permission != User.Permission.Worker:
-        return JsonResponse({
-            "message": PERMISSION_DENIED_MESSAGE,
+        return HttpResponseRedirect(reverse('index'), {
+            'message': PERMISSION_DENIED_MESSAGE,
             'error': True
         })
 
-    data = json.loads(request.body)
+    if not Ticket.objects.filter(id=id).exists():
+        return HttpResponseRedirect(reverse('index'), {
+            "message": TICKET_NOT_EXIST_MESSAGE,
+            'error': True
+        })
 
     ticket = Ticket.objects.get(id=id)
 
@@ -444,21 +445,16 @@ def claim_ticket(request, id):
 @login_required()
 def ticket(request, id):
 
-    user = request.user
-    user_ = User.objects.get(username=user)
-    if user.is_anonymous:
-        # TODO: Notification
-        return HttpResponseRedirect(reverse('index'))
+    if not Ticket.objects.filter(id=id).exists():
+        return HttpResponseRedirect(reverse('index'), {
+            "message": TICKET_NOT_EXIST_MESSAGE,
+            'error': True
+        })
 
     ticket_to_display = Ticket.objects.all().get(id=id)
-    if not ticket_to_display:
-        return render(request, "ticket.html", {
-            'message': 'This ticket does not exist!',
-            'ticket': '',
-        })
     age = calc_age(ticket_to_display.timestamp)
+
     return render(request, "ticket.html", {
-        'message': '',
         'ticket': ticket_to_display.serialize(),
         'age': age,
     })
@@ -474,14 +470,24 @@ def get_all_tickets(request):
 
     tickets, ages = prep_tickets(tickets)
 
-    return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets] if tickets else [], 'age': ages}, safe=False)
+    return JsonResponse({
+        'tickets': [ticket_.serialize() for ticket_ in tickets] if tickets else [],
+        'age': ages
+    }, safe=False)
 
 
-# TODO: Maybe error ahndling
 @login_required()
 def get_all_entries_for_ticket(request, ticket_id):
+
+    if not Ticket.objects.filter(id=ticket_id).exists():
+        return HttpResponseRedirect(reverse('index'), {
+            "message": TICKET_NOT_EXIST_MESSAGE,
+            'error': True
+        })
+
     logs = Ticket.objects.get(id=ticket_id).log_entries
     logs = logs.order_by('-timestamp').all()
+
     return JsonResponse({'entries': [entry.serialize() for entry in logs]}, safe=False)
 
 
@@ -497,7 +503,7 @@ def new_comment(request):
 
     if not Ticket.objects.filter(id=ticket_id).exists():
         return JsonResponse({
-            "message": "Something went wrong! This ticket does not exist anymore!",
+            "message": TICKET_NOT_EXIST_MESSAGE,
             'error': True
             })
 
@@ -516,8 +522,6 @@ def new_comment(request):
     }, safe=False)
 
 
-# TODO: Nicht SPA redirect ersetzen durch js verhalten
-# TODO: Remove age + ticket if not needed
 @login_required()
 def new_ticket(request):
     validate = form_standard_check(request, "ticket")
@@ -532,12 +536,9 @@ def new_ticket(request):
     newticket.image = data.get('image')
     newticket.status = 'New'
     newticket.save()
-    age = calc_age(newticket.timestamp)
 
     return JsonResponse({
         "message": "Ticket created successfully.",
-        'ticket': newticket.serialize(),
-        'age': age,
     },  safe=False)
 
 
