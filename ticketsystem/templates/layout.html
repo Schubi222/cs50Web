@@ -9,6 +9,7 @@
         <script type="module" src="{% static 'layout.js' %}"></script>
         {{ request.user.serialize|json_script:"active_user" }}
         {{ error|json_script:"custom_error" }}
+        {{ message|json_script:"message" }}
         {% block script %}
 
         {% endblock %}

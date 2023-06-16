@@ -138,6 +138,11 @@ def create_team(request):
             })
 
         team_name = request.POST['team_name']
+        if team_name == "":
+            return render(request, "myteam.html", {
+                "message": "Please enter a team name!",
+                'error': True,
+            })
         if Team.objects.filter(name=team_name).exists():
             return render(request, "myteam.html", {
                 "message": "Teamname already taken.",
@@ -591,7 +596,8 @@ def login_view(request):
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "login.html", {
-                "message": "Invalid username and/or password."
+                "message": "Invalid username and/or password.",
+                "error": True
             })
     else:
         return render(request, "login.html")

@@ -6,15 +6,12 @@
 
 {% block script %}
     <link href="{% static 'register.css'%}" rel="stylesheet">
+    <script type="module" src={% static 'util.js' %}></script>
 {% endblock %}
 
 {% block body %}
     <div id="register_wrapper">
         <h2>Login</h2>
-
-        {% if message %}
-            <div>{{ message }}</div>
-        {% endif %}
 
         <form id="register_form" action="{% url 'login' %}" method="post">
             {% csrf_token %}

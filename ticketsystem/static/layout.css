@@ -2,6 +2,7 @@
     --main-color:white;
     --primary-color:#121138;
     --call-to-action:#4dbb9b;
+    --error:#bd143d;
 }
 body{
     margin: 0;
@@ -21,8 +22,8 @@ h2{text-align: center;}
 }
 
 #message_div{
-    width: 400px;
-    height: 200px;
+    width: 300px;
+    height: 150px;
     background: var(--call-to-action);
     border: 1px solid lightgray;
     position: absolute;
@@ -31,13 +32,22 @@ h2{text-align: center;}
     left: 0;
     right: 0;
     margin: 0 auto;
+    padding: 10px;
     z-index: 10;
     visibility: hidden;
+    transition: visibility,opacity .3s ease-in-out;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-wrap: normal;
 }
-
+.error{
+    background: var(--error) !important;
+}
 .message_visible {
     visibility: visible !important;
 }
+
 .layout_menu_div{
     background-color: var(--primary-color);
     padding: 10px;
