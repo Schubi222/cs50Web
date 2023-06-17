@@ -22,3 +22,23 @@ img{
     max-width: 150px;
     max-height: 150px;
 }
+.ticket_wrapper{
+    width: 100%;
+}
+.ticket_head{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 5px;
+    margin: 5px 0;
+    border: 1px solid lightgray;
+}
+.ticket_body{
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid lightgray;
+
+}
+h4{
+    margin: 10px 0 5px 0;
+}

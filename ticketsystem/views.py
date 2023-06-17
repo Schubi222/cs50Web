@@ -8,6 +8,8 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.db.models import Q
 
+from django.core.paginator import Paginator
+
 from datetime import datetime, timezone
 import datetime
 
@@ -178,7 +180,8 @@ def create_worker(request):
 
         if password != confirmation:
             return render(request, "myteam.html", {
-                "message": "Passwords must match."
+                "message": "Passwords must match.",
+                'error': True
             })
 
         try:
@@ -501,11 +504,31 @@ def ticket(request, id):
 
 @login_required()
 def get_all_tickets(request):
+    page_number = request.GET.get("page", 1)
+    per_page = request.GET.get("per_page", 2)
+    startswith = request.GET.get("startswith", "")
+
+
+
     tickets = Ticket.objects.all()
     tickets = tickets.filter(closed=False).all()
 
     if request.user.permission == User.Permission.User:
         tickets = tickets.filter(owner=request.user)
+    #
+    # paginator = Paginator(tickets, per_page)
+    # page_obj = paginator.get_page(page_number)
+    # data = [{"name": kw.name} for kw in page_obj.object_list]
+    #
+    # payload = {
+    #     "page": {
+    #         "current": page_obj.number,
+    #         "has_next": page_obj.has_next(),
+    #         "has_previous": page_obj.has_previous(),
+    #     },
+    #     "data": data
+    # }
+    # return JsonResponse(payload)
 
     tickets, ages = prep_tickets(tickets)
 
@@ -578,6 +601,7 @@ def new_ticket(request):
 
     return JsonResponse({
         "message": "Ticket created successfully.",
+        'error': False
     },  safe=False)
 
 
@@ -618,7 +642,8 @@ def register(request):
         confirmation = request.POST["confirmation"]
         if password != confirmation:
             return render(request, "register.html", {
-                "message": "Passwords must match."
+                "message": "Passwords must match.",
+                'error': True
             })
 
         # Attempt to create new user
@@ -627,7 +652,8 @@ def register(request):
             user.save()
         except IntegrityError:
             return render(request, "register.html", {
-                "message": "Username already taken."
+                "message": "Username already taken.",
+                'error': True
             })
         login(request, user)
         return HttpResponseRedirect(reverse("index"))

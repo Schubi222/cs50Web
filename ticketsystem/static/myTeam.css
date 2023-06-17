@@ -76,6 +76,11 @@
     position: relative;
     left: 0;
     font-size: 2rem;
+    cursor: pointer;
+    transition: .3s all ease-in-out;
+}
+.back_btn:hover{
+    color: #5f5f5f;
 }
 .form{
     align-items: center;

@@ -39,11 +39,6 @@ export function listedHTMLContainer(parent, model, type, additional=[]){
 
     const wrapper = createHTML(parent, 'div', ['container_wrapper', 'noSelect', `${type}_wrapper`],'')
 
-    if (type.includes('ticket') && additional[1]?.permission.includes('Worker') && !model.assigned_to){
-        const claim_btn = createHTML(wrapper, 'button', ['container_claim_btn', `${type}_claim_btn`],
-            'Claim Ticket')
-        claim_btn.addEventListener('click',() =>{claimTicket(model,claim_btn, additional[2])})
-    }
 
     const head = createHTML(wrapper, 'div', ['container_head',`${type}_head`],'')
 
@@ -61,10 +56,18 @@ export function listedHTMLContainer(parent, model, type, additional=[]){
     const creation_date = createHTML(head, 'div', ['container_date',`${type}_date`],
         type.includes('ticket') ? `${additional[0]} Days` : model.timestamp)
 
+    const right_head = createHTML(head,'div',[ 'container_right_head',`${type}_right_head`],'')
+
+    if (type.includes('ticket') && additional[1]?.permission.includes('Worker') && !model.assigned_to){
+        const claim_btn = createHTML(right_head, 'button', ['container_claim_btn', `${type}_claim_btn`, 'btn'],
+            'Claim Ticket')
+        claim_btn.addEventListener('click',() =>{claimTicket(model,claim_btn, additional[2])})
+    }
+
     if (type.includes('ticket'))
     {
         wrapper.addEventListener('click', () =>{window.location.href=`${window.location.origin}/ticket/${model.id}`})
-        const status = createHTML(head,'div',[ 'container_ticket_status',`${type}_ticket_status`],model.status)
+        const status = createHTML(right_head,'div',[ 'container_ticket_status',`${type}_ticket_status`],model.status)
     }
 
 

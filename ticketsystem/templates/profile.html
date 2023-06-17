@@ -15,9 +15,11 @@
 
 {% block body %}
     <div id="profile_wrapper">
-        <div id="profile_header_wrapper">
+        <div class="profile_user">
             <div class="myTeam_general_circle profile_circle" id="profile_circle"></div>
             <div class="profile_header_username">{{ user_of_profile.username }}</div>
+        </div>
+        <div id="profile_header_wrapper">
             <div id="profile_header_role">Role: {{ user_of_profile.permission }}</div>
             <div id="profile_header_ticket_count">Number of open tickets: </div>
         </div>

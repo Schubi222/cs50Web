@@ -46,6 +46,7 @@
                 <div class="ticket_age">Age: {{ age }} Days</div>
                 <div class="ticket_status" id="ticket_status">Status: {{ ticket.status }}</div>
             </div>
+            <h4>Content:</h4>
             <div class="ticket_body">{{ ticket.content }}</div>
             {% if ticket.image %}
                 <div class="ticket_notes"><img src='{{ ticket.image }}' alt="Added Image"></div>
@@ -63,7 +64,7 @@
                 <p>Want to provide a url for an image:</p>
                 <input class="form_input" id="ticket_new_comment_image" name="ticket_new_comment_image" type="url" placeholder="Enter your URL">
                 <input id="ticket_id" hidden="hidden" type="text" value="{{ ticket.id }}" name="ticket_id">
-                <input class="form_input form_submit" id="newTicket_Submit" type="submit" value="Comment">
+                <input class="form_input form_submit btn" id="newTicket_Submit" type="submit" value="Comment">
             </form>
         </div>
 

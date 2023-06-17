@@ -2,23 +2,32 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    width: 100%;
+    align-items: center;
 }
 .container_wrapper{
     border: 1px solid lightgray;
     transition: .3s ease-in-out;
     height: 100px;
-    width: 600px;
+    width: 100%;
     cursor: pointer;
     border-radius: 5px;
     box-shadow:0 2px 5px 1px lightgray;
+    /*max-width: 600px;*/
+    /*min-width: 300px;*/
+        overflow: hidden;
+    overflow-wrap: break-word;
     max-width: 100%;
 }
 .container_wrapper:hover{
     background: #f3f3f3;
 }
 .container_head{
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     border-bottom: 1px solid lightgray;
     padding: 5px;
     justify-content: space-between;
@@ -31,4 +40,13 @@
     color: unset;
     text-decoration: none;
     cursor: pointer;
+}
+
+.container_right_head{
+    display: flex;
+    gap: 10px;
+    place-self: end;
+}
+.container_date{
+    place-self: center;
 }

@@ -15,7 +15,7 @@
 
 {% block body %}
     {% if user.permission == 'Lead_Worker' %}
-        <button id="myTeam_new_team">New Team</button>
+        <button id="myTeam_new_team" class="btn">New Team</button>
     {% endif %}
     <div id="myTeam_Team"></div>
     <div id="myTeam_Team_Tickets" class="container"></div>
@@ -44,7 +44,7 @@
                 <input class="form_input" id="Worker" type="radio" name="permission" value="Worker">
                 <label for="Worker">Worker</label><br>
             </div>
-            <input id="register_submit_btn" type="submit" value="Register">
+            <input id="register_submit_btn" class="btn" type="submit" value="Register">
         </form>
     </div>
     <div id="myTeam_create_team" class="form_wrapper myTeam_form">
@@ -57,7 +57,7 @@
             <div class="register_form_group">
                 <input class="form_input" autofocus type="text" name="team_name" placeholder="Team name">
             </div>
-            <input type="submit" value="Create">
+            <input type="submit" class="btn" value="Create">
         </form>
     </div>
 {% endblock %}

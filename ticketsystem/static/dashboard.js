@@ -60,7 +60,7 @@ function drawChart(titel, prepared_data,div_id) {
 
     // Set chart options
     var options = {'title': titel,
-                   'width':400,
+                   'width':320,
                    'height':300};
 
     // Instantiate and draw our chart, passing in some options.
