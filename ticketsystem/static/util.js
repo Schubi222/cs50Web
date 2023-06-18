@@ -23,9 +23,6 @@ export function displayMessage(content, error){
     error_.textContent = error.toString()
 }
 
-
-//TODO: See if keeping author div for notification is fine
-
 /***
  * 
  * @param parent parent HTML element
@@ -64,12 +61,14 @@ export function listedHTMLContainer(parent, model, type, additional=[]){
         claim_btn.addEventListener('click',() =>{claimTicket(model,claim_btn, additional[2])})
     }
 
+    //Delay exists to reduce risk of claim happening after ticket load
     if (type.includes('ticket'))
     {
-        wrapper.addEventListener('click', () =>{window.location.href=`${window.location.origin}/ticket/${model.id}`})
+        wrapper.addEventListener('click', () =>{setTimeout(() => {
+            window.location.replace(`${window.location.origin}/ticket/${model.id}`)}, 300)
+        })
         const status = createHTML(right_head,'div',[ 'container_ticket_status',`${type}_ticket_status`],model.status)
     }
-
 
     const body = createHTML(wrapper, 'div', ['container_body',`${type}_body`],model.content)
     if(type === "comment"){
@@ -96,4 +95,25 @@ export function claimTicket(ticket, btn, csrf){
                 btn.remove()
             }
         })
+}
+
+export function pagination(response, func, parent){
+    const current_page = response.page.current
+    const has_next = response.page.has_next
+    const has_previous = response.page.has_previous
+    const total = response.page.total
+
+    const pagination_btn_wrapper = createHTML(parent, 'div',['pagination_btn_wrapper'],'')
+
+    createHTML(pagination_btn_wrapper,'div',['page_of_max'],`${current_page} of ${total}`)
+
+    if(has_previous){
+        const prev_btn = createHTML(pagination_btn_wrapper, 'button', ['btn'],'Previous')
+        prev_btn.addEventListener('click', ()=>{func(current_page-1)})
+    }
+
+    if(has_next){
+        const next_btn = createHTML(pagination_btn_wrapper, 'button', ['btn'],'Next')
+        next_btn.addEventListener('click', ()=>{func(current_page+1)})
+    }
 }

@@ -1,4 +1,4 @@
-import {createHTML, listedHTMLContainer, displayMessage, claimTicket} from './util.js'
+import {createHTML, listedHTMLContainer, displayMessage, claimTicket, pagination} from './util.js'
 document.addEventListener('DOMContentLoaded', ()=>{
     loadLog()
     document.getElementById('ticket_new_comment_form').addEventListener('submit', () =>{comment()})
@@ -186,12 +186,12 @@ function comment(){
         })
 }
 
-function loadLog(){
+function loadLog(page=1){
     const ticket = JSON.parse(document.getElementById('ticket').textContent)
     const parent = document.getElementById('ticket_log')
     parent.innerHTML = ''
 
-    fetch(`/getallentries/${ticket.id}`)
+    fetch(`/getallentries/${ticket.id}/${page}`)
         .then(response => response.json())
         .then(r =>{
             if (r.entries.length !== 0){
@@ -210,5 +210,6 @@ function loadLog(){
                         break
                 }
             })
+            pagination(r,loadLog,parent)
         })
 }

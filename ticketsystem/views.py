@@ -19,6 +19,7 @@ from .models import User, Ticket, LogEntry, Team
 
 PERMISSION_DENIED_MESSAGE = "You do not have the permission to do that!"
 TICKET_NOT_EXIST_MESSAGE = "Ticket does not exist!"
+PER_PAGE = 5
 
 
 # Helper Functions
@@ -60,6 +61,21 @@ def prep_tickets(tickets):
     return tickets, ages
 
 
+# needs model array (something like "tickets") and page_number
+# returns first serialized elem array and then current page number, has_next, has_previous and total page count
+def pagination(model_array, page_number):
+    paginator = Paginator(model_array, PER_PAGE)
+    model = paginator.get_page(page_number)
+    model.adjusted_elided_pages = paginator.get_elided_page_range(page_number)
+
+    return [elem.serialize() for elem in model] if model else [],{
+            "current": model.number,
+            "has_next": model.has_next(),
+            "has_previous": model.has_previous(),
+            "total": model.paginator.num_pages
+        }
+
+
 @login_required()
 def index(request):
     return render(request, "index.html")
@@ -71,7 +87,7 @@ def my_tickets(request):
 
 
 @login_required()
-def my_team(request, operation="init"):
+def my_team(request, operation="init", page_number=1):
 
     if operation == "init":
         return render(request, "myteam.html")
@@ -107,9 +123,11 @@ def my_team(request, operation="init"):
             tickets = tickets | member_.assigned_tickets.all()
         tickets = tickets.filter(closed=False).all()
         tickets, ages = prep_tickets(tickets)
+        tickets, page = pagination(tickets,page_number)
 
         return JsonResponse({
-            'tickets': [ticket.serialize() for ticket in tickets] if tickets else [],
+            'tickets': tickets,
+            'page': page,
             'ages': ages,
             'error': False
         })
@@ -163,7 +181,6 @@ def create_team(request):
 
 # adapted from register function see source at login_view!
 @login_required()
-# TODO: Handle message;
 def create_worker(request):
     if not request.user or request.user.permission != User.Permission.Lead_Worker:
         return render(request, "myteam.html", {
@@ -211,25 +228,25 @@ def create_worker(request):
 
 
 @login_required()
-def my_tickets_get(request):
+def my_tickets_get(request, operation, page_number=1):
     user = request.user
     user = User.objects.get(username=user)
 
-    worker_tickets = None
-    user_tickets = Ticket.objects.filter(owner=user).all()
+    tickets = Ticket.objects.none()
 
-    if user.permission == User.Permission.Lead_Worker or user.permission == User.Permission.Worker:
-        worker_tickets = Ticket.objects.filter(assigned_to=user).all()
-        worker_tickets = worker_tickets.filter(closed=False).all()
+    if operation == 'user':
+        tickets = Ticket.objects.filter(owner=user).all()
+        tickets = tickets.filter(closed=False).all()
 
-    user_tickets = user_tickets.filter(closed=False).all()
+    if operation == 'worker' and (user.permission == User.Permission.Lead_Worker or user.permission == User.Permission.Worker):
+        tickets = Ticket.objects.filter(assigned_to=user).all()
+        tickets = tickets.filter(closed=False).all()
 
-    user_tickets, user_ages = prep_tickets(user_tickets)
-    worker_tickets, worker_ages = prep_tickets(worker_tickets)
+    tickets, ages = prep_tickets(tickets)
 
-    return JsonResponse({'user_tickets': {'tickets': [elem.serialize() for elem in user_tickets] if user_tickets else None,'ages': user_ages},
-                        'worker_tickets': {'tickets': [elem.serialize() for elem in worker_tickets] if worker_tickets else None, 'ages': worker_ages}
-                         }, safe=False)
+    tickets, page = pagination(tickets, page_number)
+
+    return JsonResponse({'tickets': tickets, 'ages': ages, 'page': page}, safe=False)
 
 
 def dashboard_get_tickets_last_30_days(user, closed, team=None, all_teams=False, not_assigned=False):
@@ -299,7 +316,7 @@ def my_dashboard(request, operation='init'):
 
 
 @login_required()
-def profile(request, username, operation="init"):
+def profile(request, username, operation="init", page_number=1):
     if not User.objects.filter(username=username).exists():
         return HttpResponseRedirect(reverse('index'), {
             'message': "This user does not exist",
@@ -328,10 +345,11 @@ def profile(request, username, operation="init"):
             tickets = tickets.filter(owner=request.user)
 
         tickets, ages = prep_tickets(tickets)
-
+        tickets, page = pagination(tickets,page_number)
         return JsonResponse({
-            'tickets': [elem.serialize() for elem in tickets] if tickets else [],
+            'tickets': tickets,
             'ages': ages,
+            'page': page
         })
     elif operation == "assigned":
         assigned_tickets = Ticket.objects.filter(assigned_to=user_of_profile, closed=False)
@@ -340,15 +358,17 @@ def profile(request, username, operation="init"):
             assigned_tickets = assigned_tickets.filter(owner=request.user)
 
         assigned_tickets, assigned_ages = prep_tickets(assigned_tickets)
+        assigned_tickets, page = pagination(assigned_tickets, page_number)
 
         return JsonResponse({
-            'tickets': [elem.serialize() for elem in assigned_tickets] if assigned_tickets else [],
+            'tickets': assigned_tickets,
             'ages': assigned_ages,
+            'page': page
         })
 
 
 @login_required()
-def archive(request, operation="init"):
+def archive(request, operation="init", page_number=1):
     if operation == "get":
         user = User.objects.get(username=request.user)
 
@@ -359,10 +379,11 @@ def archive(request, operation="init"):
             tickets = Ticket.objects.all()
 
         tickets = tickets.filter(closed=True).all()
-        tickets, ages = prep_tickets(tickets)
 
-        return JsonResponse({'tickets': [ticket_.serialize() for ticket_ in tickets] if tickets else [],
-                             'age': ages}, safe=False)
+        tickets, ages = prep_tickets(tickets)
+        tickets, page = pagination(tickets, page_number)
+
+        return JsonResponse({'tickets': tickets, 'page': page, 'age': ages}, safe=False)
     else:
         return render(request, 'archive.html')
 
@@ -503,43 +524,27 @@ def ticket(request, id):
 
 
 @login_required()
-def get_all_tickets(request):
-    page_number = request.GET.get("page", 1)
-    per_page = request.GET.get("per_page", 2)
-    startswith = request.GET.get("startswith", "")
-
-
+def get_all_tickets(request, page_number=1):
 
     tickets = Ticket.objects.all()
     tickets = tickets.filter(closed=False).all()
 
     if request.user.permission == User.Permission.User:
         tickets = tickets.filter(owner=request.user)
-    #
-    # paginator = Paginator(tickets, per_page)
-    # page_obj = paginator.get_page(page_number)
-    # data = [{"name": kw.name} for kw in page_obj.object_list]
-    #
-    # payload = {
-    #     "page": {
-    #         "current": page_obj.number,
-    #         "has_next": page_obj.has_next(),
-    #         "has_previous": page_obj.has_previous(),
-    #     },
-    #     "data": data
-    # }
-    # return JsonResponse(payload)
 
     tickets, ages = prep_tickets(tickets)
 
+    tickets, page = pagination(tickets, page_number)
+
     return JsonResponse({
-        'tickets': [ticket_.serialize() for ticket_ in tickets] if tickets else [],
-        'age': ages
+        'tickets': tickets,
+        "page": page,
+        'age': ages,
     }, safe=False)
 
 
 @login_required()
-def get_all_entries_for_ticket(request, ticket_id):
+def get_all_entries_for_ticket(request, ticket_id, page_number=1):
 
     if not Ticket.objects.filter(id=ticket_id).exists():
         return HttpResponseRedirect(reverse('index'), {
@@ -550,7 +555,9 @@ def get_all_entries_for_ticket(request, ticket_id):
     logs = Ticket.objects.get(id=ticket_id).log_entries
     logs = logs.order_by('-timestamp').all()
 
-    return JsonResponse({'entries': [entry.serialize() for entry in logs]}, safe=False)
+    logs, page = pagination(logs, page_number)
+
+    return JsonResponse({'entries': logs, 'page': page}, safe=False)
 
 
 @login_required()

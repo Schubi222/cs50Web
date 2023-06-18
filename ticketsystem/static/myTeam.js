@@ -1,4 +1,4 @@
-import {createHTML, displayMessage, listedHTMLContainer} from './util.js'
+import {createHTML, displayMessage, listedHTMLContainer, pagination} from './util.js'
 document.addEventListener('DOMContentLoaded', () =>{
     loadMyTeam()
     document.getElementById('myTeam_new_team')?.addEventListener('click', () => newTeam())
@@ -39,7 +39,7 @@ function loadMyTeam(){
     document.getElementById('myTeam_create_team').style.display = "none"
     document.getElementById('myTeam_new_team').style.display = "unset"
     loadTeam(team_div)
-    loadTeamTickets(ticket_div, active_user, active_user.leader_of ? active_user.leader_of : active_user.member_of)
+    loadTeamTickets( )
 }
 
 function loadTeam(parent){
@@ -92,10 +92,14 @@ function loadTeam(parent){
         })
 }
 
-function loadTeamTickets(parent, user, team){
-     parent.innerHTML = ''
-     createHTML(parent, "h2", [],`Tickets of Team ${team}`)
-     fetch('/myteam/tickets')
+function loadTeamTickets( page=1){
+    const parent = document.getElementById('myTeam_Team_Tickets')
+    parent.innerHTML = ''
+    const user = JSON.parse(document.getElementById('active_user').textContent)
+    const team = user.leader_of ? user.leader_of : user.member_of
+
+    createHTML(parent, "h2", [],`Tickets of Team ${team}`)
+    fetch(`/myteam/tickets/${page}`)
         .then(response => response.json())
         .then(response => {
             if (response.error)
@@ -110,6 +114,7 @@ function loadTeamTickets(parent, user, team){
             for (let i = 0; i < response.tickets.length; i++) {
                 listedHTMLContainer(parent,response.tickets[i],'myTeam_ticket',[response.ages[i],user])
             }
+            pagination(response,loadTeamTickets,parent)
         })
 }
 

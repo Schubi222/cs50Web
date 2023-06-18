@@ -50,3 +50,6 @@
 .container_date{
     place-self: center;
 }
+.container_claim_btn {
+    z-index: 2;
+}

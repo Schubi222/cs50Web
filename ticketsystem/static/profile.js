@@ -1,20 +1,11 @@
-import {createHTML, listedHTMLContainer, displayMessage} from './util.js'
+import {createHTML, listedHTMLContainer, displayMessage, pagination} from './util.js'
 document.addEventListener("DOMContentLoaded", ()=>{
     loadProfile()
 })
-/*
-* const wrapper = createHTML(parent, 'div', [`myTeam_general_wrapper`],'')
-    wrapper.addEventListener('click', () => {
-        window.location = `${window.location.origin}/profile/${user.username}`
-    })
-    createHTML(wrapper, 'div', [`myTeam_general_circle`, `myTeam_${role}_circle`], user.username.substring(0,3))
 
-    createHTML(wrapper, 'div', [`myTeam_general_name`, `myTeam_${role}_name`], user.username)
-*
-* */
 function loadProfile(){
     const user_of_profile = JSON.parse(document.getElementById('user_of_profile').textContent)
-    const active_user = JSON.parse(document.getElementById('active_user').textContent)
+
     const profile_header_wrapper = document.getElementById('profile_header_wrapper')
     const profile_header_ticket_count = document.getElementById('profile_header_ticket_count')
 
@@ -36,7 +27,17 @@ function loadProfile(){
             }
         })
 
-        fetch(`/profile/${user_of_profile.username}/ticket`)
+        ticket()
+
+        if (user_of_profile.permission === "User"){return}
+
+        assigned()
+}
+
+function ticket(page=1){
+    const user_of_profile = JSON.parse(document.getElementById('user_of_profile').textContent)
+        const active_user = JSON.parse(document.getElementById('active_user').textContent)
+    fetch(`/profile/${user_of_profile.username}/ticket/${page}`)
             .then(response => response.json())
             .then(response =>{
                 if (response.error)
@@ -45,6 +46,9 @@ function loadProfile(){
                     return
                 }
                 const parent = document.getElementById('profile_created_tickets')
+                parent.innerHTML = ''
+                createHTML(parent, 'h2', ['profile_tickets_heading'],
+                `${user_of_profile.username}\'s Tickets`)
                 if (response.tickets.length === 0)
                 {
                     createHTML(parent, 'h4', [],'There are no open tickets from this user!')
@@ -53,30 +57,34 @@ function loadProfile(){
                     listedHTMLContainer(parent, response.tickets[i], 'profile_created_tickets',
                         [response.ages[i], active_user])
                 }
+                pagination(response,ticket,parent)
             })
+}
+function assigned(page=1){
+    const user_of_profile = JSON.parse(document.getElementById('user_of_profile').textContent)
+        const active_user = JSON.parse(document.getElementById('active_user').textContent)
+    fetch(`/profile/${user_of_profile.username}/assigned/${page}`)
+        .then(response => response.json())
+        .then(response =>{
+            if (response.error)
+            {
+                displayMessage(response.message, response.error)
+                return
+            }
+            const parent = document.getElementById('profile_assigned_tickets')
+            parent.innerHTML = ''
 
-        if (user_of_profile.permission === "User"){return}
+            createHTML(parent, 'h2', ['profile_tickets_heading'],
+                `Tickets assigned to ${user_of_profile.username}`)
 
-        fetch(`/profile/${user_of_profile.username}/assigned`)
-            .then(response => response.json())
-            .then(response =>{
-                if (response.error)
-                {
-                    displayMessage(response.message, response.error)
-                    return
-                }
-                const parent = document.getElementById('profile_assigned_tickets')
-
-                createHTML(parent, 'h2', ['profile_tickets_heading'],
-                    `Tickets assigned to ${user_of_profile.username}`)
-
-                if (response.tickets.length === 0)
-                {
-                    createHTML(parent, 'h4', [],'This worker does not have any tickets assigned!')
-                }
-                for (let i = 0; i < response.tickets.length; i++) {
-                    listedHTMLContainer(parent, response.tickets[i], 'profile_assigned_tickets',
-                        [response.ages[i], active_user])
-                }
-            })
+            if (response.tickets.length === 0)
+            {
+                createHTML(parent, 'h4', [],'This worker does not have any tickets assigned!')
+            }
+            for (let i = 0; i < response.tickets.length; i++) {
+                listedHTMLContainer(parent, response.tickets[i], 'profile_assigned_tickets',
+                    [response.ages[i], active_user])
+            }
+            pagination(response,assigned, parent)
+        })
 }
