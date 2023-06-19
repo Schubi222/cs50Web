@@ -21,8 +21,10 @@ function loadUser(page=1){
         .then(response =>{
             createHTML(div, 'h2', ['my_tickets_heading'],'My tickets')
 
-            if (response.tickets === null)
-                createHTML(div, 'h3', [],'There are currently no tickets!')
+            if (response.tickets.length === 0) {
+                createHTML(div, 'h3', [], 'There are currently no tickets!')
+                return
+            }
 
             for (let i = 0; i < response.tickets?.length; i++) {
 
@@ -44,8 +46,11 @@ function loadWorker(page=1){
         .then(response=>response.json())
         .then(response =>{
 
-            if (response.tickets)
-                createHTML(div, 'h2', ['my_tickets_heading'],'My assigned tickets')
+            if (response.tickets.length === 0){
+                return
+            }
+
+            createHTML(div, 'h2', ['my_tickets_heading'],'My assigned tickets')
 
             for (let i = 0; i < response.tickets?.length; i++) {
 

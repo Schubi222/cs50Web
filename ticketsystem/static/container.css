@@ -11,14 +11,16 @@
 .container_wrapper{
     border: 1px solid lightgray;
     transition: .3s ease-in-out;
-    height: 100px;
+    min-height: 100px;
+    height: auto;
+    max-height: 250px;
     width: 100%;
     cursor: pointer;
     border-radius: 5px;
     box-shadow:0 2px 5px 1px lightgray;
     /*max-width: 600px;*/
     /*min-width: 300px;*/
-        overflow: hidden;
+    overflow: hidden;
     overflow-wrap: break-word;
     max-width: 100%;
 }
@@ -35,6 +37,8 @@
 }
 .container_body{
     padding: 5px;
+    display: flex;
+    flex-direction: column;
 }
 .container_author_link{
     color: unset;
@@ -52,4 +56,7 @@
 }
 .container_claim_btn {
     z-index: 2;
+}
+.page_of_max{
+    text-align: center;
 }

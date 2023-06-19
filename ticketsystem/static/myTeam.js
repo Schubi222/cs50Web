@@ -97,7 +97,10 @@ function loadTeamTickets( page=1){
     parent.innerHTML = ''
     const user = JSON.parse(document.getElementById('active_user').textContent)
     const team = user.leader_of ? user.leader_of : user.member_of
-
+    if (!team){
+        createHTML(parent, "h2", [],`You are currently not part of any team!`)
+        return
+    }
     createHTML(parent, "h2", [],`Tickets of Team ${team}`)
     fetch(`/myteam/tickets/${page}`)
         .then(response => response.json())

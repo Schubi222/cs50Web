@@ -55,7 +55,6 @@ class Ticket(models.Model):
     closed = models.BooleanField(default=False)
     closed_at_time = models.DateTimeField(blank=True, null=True)
 
-    # TODO: Image sollten mehrere sein können
     def serialize(self):
         return {
             "id": self.id,

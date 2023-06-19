@@ -64,6 +64,13 @@ def prep_tickets(tickets):
 # needs model array (something like "tickets") and page_number
 # returns first serialized elem array and then current page number, has_next, has_previous and total page count
 def pagination(model_array, page_number):
+    if not model_array:
+        return [],{
+            "current": 0,
+            "has_next": False,
+            "has_previous": False,
+            "total": 0
+        }
     paginator = Paginator(model_array, PER_PAGE)
     model = paginator.get_page(page_number)
     model.adjusted_elided_pages = paginator.get_elided_page_range(page_number)
@@ -179,6 +186,7 @@ def create_team(request):
     else:
         return render(request, "myteam.html")
 
+
 # adapted from register function see source at login_view!
 @login_required()
 def create_worker(request):
@@ -254,7 +262,7 @@ def dashboard_get_tickets_last_30_days(user, closed, team=None, all_teams=False,
         if not_assigned:
             tickets = Ticket.objects.filter(assigned_to=None)
         else:
-            tickets = Ticket.objects.filter(assigned_to=not None)
+            tickets = Ticket.objects.exclude(assigned_to=None)
     elif team is not None:
         tickets = Ticket.objects.filter(Q(assigned_to__leader_of=team) | Q(assigned_to__member_of=team))
     else:

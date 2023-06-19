@@ -5,11 +5,14 @@
     width: 100%;
     flex-direction: row;
 }
-.chart{
+/*.chart{
     width: 320px;
     height: 300px;
-}
+}*/
 
 .chart text{
     font-size: .8rem;
+}
+#no-tickets-heading{
+    text-align: center;
 }
