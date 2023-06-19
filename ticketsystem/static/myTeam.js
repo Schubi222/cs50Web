@@ -37,7 +37,9 @@ function loadMyTeam(){
 
     document.getElementById('myTeam_create_worker').style.display = "none"
     document.getElementById('myTeam_create_team').style.display = "none"
-    document.getElementById('myTeam_new_team').style.display = "unset"
+    const new_team = document.getElementById('myTeam_new_team')
+    if (new_team)
+        new_team.style.display = "unset"
     loadTeam(team_div)
     loadTeamTickets()
 }
