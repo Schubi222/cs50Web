@@ -25,7 +25,7 @@ h2{
     font-size: 1.3rem;
 }
 #register_login_link{
-    color: #dbba30;
+    color: var(--call-to-action);
 }
 #register_submit_btn{
     cursor: pointer;

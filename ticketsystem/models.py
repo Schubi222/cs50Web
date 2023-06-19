@@ -67,7 +67,6 @@ class Ticket(models.Model):
             "log": [entry.id for entry in self.log_entries.all()],
             "closed": self.closed,
             "closed_at_time": self.closed_at_time,
-
         }
 
 

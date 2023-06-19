@@ -19,7 +19,6 @@ function loadDashboard(){
 
             if (values[0]+values[1] === 0) {
                 no_ticket = `<h3>You do not have any tickets!</h3>`
-                // document.getElementById('chart_div1').innerHTML = `<h3>You do not have any tickets!</h3>`
             }
             else{
                 let data_user = [[keys[0],values[0]],[keys[1],values[1]]]
@@ -57,17 +56,17 @@ function loadDashboard(){
 function drawChart(titel, prepared_data,div_id) {
 
     // Create the data table.
-    var data = new google.visualization.DataTable();
+    let data = new google.visualization.DataTable();
     data.addColumn('string', 'Type');
     data.addColumn('number', 'Amount');
     data.addRows(prepared_data);
 
     // Set chart options
-    var options = {'title': titel,
+    let options = {'title': titel,
                    'width':320,
                    'height':300};
 
     // Instantiate and draw our chart, passing in some options.
-    var chart = new google.visualization.PieChart(document.getElementById(div_id));
+    let chart = new google.visualization.PieChart(document.getElementById(div_id));
     chart.draw(data, options);
 }

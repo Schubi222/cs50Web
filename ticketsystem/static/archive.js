@@ -11,8 +11,6 @@ function loadArchive(page=1){
     fetch(`archive/get/${page}`)
         .then(response => response.json())
         .then(response =>{
-
-
             if (response.tickets.length === 0){parent.innerHTML = '<h3>There are currently no tickets in the archive! </h3>'; return}
             for (let i = 0; i < response.tickets.length; i++) {
                 listedHTMLContainer(parent, response.tickets[i],'all_tickets',
